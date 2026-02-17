@@ -1,0 +1,400 @@
+
+import React, { useState } from 'react';
+import Navbar from './components/Navbar';
+import AuditTool from './components/AuditTool';
+import { SectionId } from './types';
+
+const App: React.FC = () => {
+  const [showAllFaq, setShowAllFaq] = useState(false);
+
+  const faqs = [
+    {
+      q: "What is AI SEO (AISEO)?",
+      a: "AI SEO, also known as AISEO or AIO (Artificial Intelligence Optimization), is the strategy of optimizing digital content to be discovered, understood, and cited by Generative AI models like ChatGPT, Gemini, and Perplexity. Unlike traditional SEO which targets blue links, AISEO targets the 'synthesized answer'."
+    },
+    {
+      q: "How can AI improve SEO for small business?",
+      a: "AI tools democratize technical optimization. They can automate complex audits, generate schema markup code, and help small businesses identify high-value content gaps. This allows smaller entities to build 'Topical Authority' faster than ever before."
+    },
+    {
+      q: "What are the best AI powered tools for keyword research?",
+      a: "While tools like Jasper and SurferSEO assist with content creation, true AISEO requires distinct analytics. We recommend using Perplexity for intent research and specialized entity-confidence auditing tools (like our own) to gauge how LLMs perceive your brand."
+    },
+    {
+      q: "Will AI replace SEO in 2025?",
+      a: "AI won't replace SEO, but it will fundamentally change it. We are moving toward 'Answer Engine Optimization' (AEO). By 2025, a significant volume of search traffic will stay inside the chat interface (Zero-Click), making AI citation the new ranking metric."
+    },
+    {
+      q: "How does AI affect search engine rankings?",
+      a: "AI introduces a 'semantic layer' to rankings. Search engines now understand user intent and entity relationships better than simple keyword matching. If your brand lacks a clear 'Entity Identity' in the Knowledge Graph, you may lose visibility even if your keywords are perfect."
+    },
+    {
+      q: "Can AI generate SEO-optimized images?",
+      a: "Yes. Generative AI can create unique visuals, but for AISEO, the context is key. AI vision models scan images for content. Optimization requires descriptive filenames, relationship-based alt text, and surrounding the image with entity-rich content."
+    },
+    {
+      q: "How do I optimize content for ChatGPT?",
+      a: "ChatGPT relies on training data and Bing search. To optimize for it, ensure your content is factual, highly structured, and published on authoritative sources that are frequently crawled. Use distinct 'Entity-Definition' structures that are easy for models to ingest."
+    },
+    {
+      q: "What is the difference between SEO and AEO?",
+      a: "SEO (Search Engine Optimization) focuses on ranking URLs to get clicks. AEO (Answer Engine Optimization) focuses on providing the single best answer so that an AI or Voice Assistant serves your content directly as the solution."
+    },
+    {
+      q: "Does AI content rank well on Google?",
+      a: "Google ranks content based on quality (E-E-A-T), not authorship. AI content can rank well if it is accurate, helpful, and edited by experts. However, unedited, mass-produced AI spam is penalized by core updates."
+    },
+    {
+      q: "How to track traffic from AI chatbots?",
+      a: "It is currently difficult as many LLMs do not pass referrer data, often appearing as 'Direct' traffic. However, specialized tools and identifying spikes in direct traffic correlating with AI mentions are emerging methods for tracking impact."
+    },
+    {
+      q: "How does Perplexity AI find answers?",
+      a: "Perplexity functions as a real-time answer engine. It crawls the web live to find authoritative citations. To rank here, your site must be fast, crawlable, and cited by other trusted domains within your niche."
+    },
+    {
+      q: "Is structured data (Schema) important for AISEO?",
+      a: "Crucial. Schema markup is the native language of machines. Providing clear JSON-LD data about your Organization, Products, and Authors helps AI models disambiguate your brand from competitors."
+    },
+    {
+      q: "What is 'Entity-First' SEO?",
+      a: "This approach prioritizes establishing your brand as a distinct 'Entity' in the Knowledge Graph rather than just targeting keywords. If an AI model knows 'who' you are, it can recommend 'what' you do."
+    },
+    {
+      q: "How to optimize for Google SGE (AI Overviews)?",
+      a: "Focus on 'Snapshot' content—concise summaries placed at the start of articles—and 'Follow-up' optimization, answering the likely next questions a user would have to appear in conversational continuations."
+    },
+    {
+      q: "Can AI replace human SEO experts?",
+      a: "AI replaces routine tasks (audits, basic copy), but strategic oversight, creative direction, and proprietary data management require human expertise. The role is shifting from 'writer' to 'editor' and 'strategist'."
+    },
+    {
+      q: "What is Generative Engine Optimization (GEO)?",
+      a: "GEO is a synonym for AISEO, specifically referring to optimizing content to appear in Generative Engine results. It involves optimizing for citations, quotations, and recommendation inclusion."
+    },
+    {
+      q: "How does social media impact AI SEO?",
+      a: "LLMs utilize social platforms (like Reddit, X, and LinkedIn) as real-time data sources. High engagement and consistent brand mentions on social platforms act as verification signals for AI models."
+    },
+    {
+      q: "Is AI SEO expensive?",
+      a: "It shifts costs. While content production becomes cheaper, the cost of 'Authority Building' (PR, technical structure, proprietary data tools) increases. It is an investment in brand infrastructure rather than just blog posts."
+    },
+    {
+      q: "How to fix AI hallucinations about my brand?",
+      a: "If AI lies about your brand, you are likely in a 'Data Void.' You must flood the web with consistent, structured, authoritative facts across your site, social profiles, and third-party directories to correct the model's weights."
+    },
+    {
+      q: "What is an AI SEO Audit?",
+      a: "An AI SEO audit checks how machine readable your site is. It looks for Hallucination Risk, Entity Confidence, and whether major LLMs cite you as an authority or ignore you completely."
+    },
+    {
+      q: "How does Google Gemini utilize Search?",
+      a: "Gemini is 'grounded' in Google Search. It cross-references its generated answers with live search results. Ranking in traditional Google Search is still a prerequisite for visibility in Gemini."
+    },
+    {
+      q: "What is the role of citations in AI search?",
+      a: "Citations are the new backlinks. In a world where users don't click links, being the 'Cited Source' is the primary goal, as it builds brand authority and eventually drives high-intent referral traffic."
+    },
+    {
+      q: "How to perform keyword research for AI?",
+      a: "Move beyond short-tail keywords. Look for conversational queries, 'How-to' questions, and informational gaps that AI struggles to answer. Target the questions your customers ask their smart assistants."
+    },
+    {
+      q: "What industries are most affected by AI SEO?",
+      a: "YMYL (Your Money Your Life) sectors like Finance, Health, and Law are most affected. AI models have higher safety thresholds here, meaning only the most authoritative, verified brands will be recommended."
+    },
+    {
+      q: "What is 'Zero-Click' search?",
+      a: "A search where the user gets the answer directly on the results page (or in the chat) without clicking a website link. AISEO aims to optimize for brand impressions within these Zero-Click environments."
+    },
+    {
+      q: "How do I start with AI SEO?",
+      a: "Begin with a visibility audit. Understand which models know you and which don't. Then, fix your technical schema foundation, ensure your NAP (Name, Address, Phone) is consistent, and start publishing data-rich content."
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30">
+      <Navbar />
+
+      {/* 01. AUDIT TOOL (HERO) */}
+      <section id={SectionId.Audit} className="pt-32 pb-20 px-6 relative scroll-mt-20">
+        <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(#d9ff00 1px, transparent 1px)', backgroundSize: '32px 32px' }}></div>
+        
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-3 px-4 py-1 bg-lime-400/10 border border-lime-400/30 text-lime-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6 rounded-[7px]">
+              AI Visibility Report
+            </div>
+            <h1 className="text-5xl md:text-8xl font-black tracking-tighter mb-6 leading-[0.85] uppercase text-white">
+              Do AI Engines <span className="gradient-text">Show</span> Your Brand?
+            </h1>
+            <p className="text-base md:text-lg text-slate-500 max-w-3xl mx-auto font-bold uppercase tracking-widest leading-relaxed mb-12">
+              Optimize for the "Synthesized Answer" era. We structure your digital presence so AI models crawl, understand, trust, and reuse your information.
+            </p>
+          </div>
+          
+          <div className="relative max-w-5xl mx-auto">
+            <AuditTool />
+          </div>
+        </div>
+      </section>
+
+      {/* 02. THE 3 LAYERS OF AIEO */}
+      <section id={SectionId.Hero} className="py-24 px-6 relative bg-slate-900/10 border-y border-white/5 scroll-mt-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white mb-4">
+              The <span className="text-lime-400">Three Layers</span> of Modern Visibility
+            </h2>
+            <p className="text-slate-500 text-xs font-black uppercase tracking-[0.3em]">AIEO integrates discovery across every machine-driven system.</p>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse border border-white/5 rounded-[7px] overflow-hidden">
+              <thead className="bg-white/[0.03] text-[10px] font-black uppercase tracking-widest text-slate-400">
+                <tr>
+                  <th className="p-6 border-b border-white/5">System Type</th>
+                  <th className="p-6 border-b border-white/5">Examples</th>
+                  <th className="p-6 border-b border-white/5">Optimization Focus</th>
+                </tr>
+              </thead>
+              <tbody className="text-[11px] font-bold uppercase tracking-widest">
+                <tr className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                  <td className="p-6 text-white">Search Engines</td>
+                  <td className="p-6 text-slate-500 italic">Google, Bing</td>
+                  <td className="p-6 text-lime-400">Traditional Rankings (SEO)</td>
+                </tr>
+                <tr className="border-b border-white/5 hover:bg-white/[0.01] transition-colors">
+                  <td className="p-6 text-white">Answer Engines</td>
+                  <td className="p-6 text-slate-500 italic">Featured Snippets, Voice Assistants</td>
+                  <td className="p-6 text-emerald-400">Extractable Answers (AEO)</td>
+                </tr>
+                <tr className="hover:bg-white/[0.01] transition-colors">
+                  <td className="p-6 text-white">AI Engines (LLMs)</td>
+                  <td className="p-6 text-slate-500 italic">ChatGPT, Gemini, Claude, Perplexity</td>
+                  <td className="p-6 text-sky-400">Citations & Model Usage (AIO)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* 03. WHY AIEO MATTERS */}
+      <section id={SectionId.Synergy} className="py-32 px-6 bg-slate-950 scroll-mt-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-20 items-center">
+            <div>
+              <span className="text-[10px] text-lime-400 font-bold uppercase tracking-[0.3em] block mb-8">Why AIEO Matters Now</span>
+              <h2 className="text-4xl md:text-7xl font-black mb-10 uppercase tracking-tighter text-white leading-[0.85]">From Clicks <br/><span className="text-slate-500">To Citations.</span></h2>
+              <p className="text-lg text-slate-400 mb-12 leading-relaxed font-medium uppercase tracking-wide">
+                Traditional SEO assumes users click links. AI search assumes users read synthesized answers. 
+                If your content is not structured for extraction, summarization, and entity recognition, AI systems will ignore it—even if you rank.
+              </p>
+              
+              <div className="space-y-6">
+                <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[7px] flex gap-6 items-start group">
+                  <div className="h-10 w-10 bg-lime-400 flex items-center justify-center font-black text-black text-lg shrink-0 rounded-[7px]">01</div>
+                  <div>
+                    <h4 className="font-black text-white text-[11px] uppercase tracking-widest mb-2">Crawl Layer (SEO Foundation)</h4>
+                    <p className="text-slate-400 text-[10px] font-medium uppercase tracking-wider leading-relaxed">Topic clusters, schema markup, and indexable site architecture.</p>
+                  </div>
+                </div>
+                <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[7px] flex gap-6 items-start group">
+                  <div className="h-10 w-10 bg-emerald-400 flex items-center justify-center font-black text-black text-lg shrink-0 rounded-[7px]">02</div>
+                  <div>
+                    <h4 className="font-black text-white text-[11px] uppercase tracking-widest mb-2">Answer Layer (AEO Structure)</h4>
+                    <p className="text-slate-400 text-[10px] font-medium uppercase tracking-wider leading-relaxed">Q&A formatting, clear entity definitions, and structured How-To blocks.</p>
+                  </div>
+                </div>
+                <div className="p-8 bg-white/[0.02] border border-white/5 rounded-[7px] flex gap-6 items-start group">
+                  <div className="h-10 w-10 bg-sky-400 flex items-center justify-center font-black text-black text-lg shrink-0 rounded-[7px]">03</div>
+                  <div>
+                    <h4 className="font-black text-white text-[11px] uppercase tracking-widest mb-2">AI Knowledge Layer (AIO Signals)</h4>
+                    <p className="text-slate-400 text-[10px] font-medium uppercase tracking-wider leading-relaxed">Topical authority, brand mentions, and trust signals (Authorship/E-E-A-T).</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="absolute -inset-10 bg-lime-400/10 blur-[120px] rounded-full animate-pulse"></div>
+              <div className="relative bg-slate-900/40 border border-white/10 p-12 rounded-[7px] backdrop-blur-3xl shadow-2xl">
+                <div className="flex items-center gap-4 mb-10">
+                  <div className="h-0.5 w-8 bg-lime-400"></div>
+                  <span className="text-[11px] text-white font-black uppercase tracking-[0.4em]">Visibility Realities</span>
+                </div>
+
+                <div className="space-y-12">
+                  <div className="relative pl-8 border-l border-white/10">
+                    <span className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-lime-400 rounded-full shadow-[0_0_10px_rgba(217,255,0,0.5)]"></span>
+                    <h5 className="text-xs text-white font-black uppercase tracking-widest mb-3">Understanding Gap</h5>
+                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                      If your brand isn't clear to AI systems, you won't appear in the answers they provide to customers.
+                    </p>
+                  </div>
+
+                  <div className="relative pl-8 border-l border-white/10">
+                    <span className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-slate-700 rounded-full"></span>
+                    <h5 className="text-xs text-white font-black uppercase tracking-widest mb-3">Direct Answers</h5>
+                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                      Customers often accept the first business an AI tool recommends. We help ensure that business is yours.
+                    </p>
+                  </div>
+
+                  <div className="relative pl-8 border-l border-white/10">
+                    <span className="absolute -left-[5px] top-0 w-2.5 h-2.5 bg-slate-700 rounded-full"></span>
+                    <h5 className="text-xs text-white font-black uppercase tracking-widest mb-3">Brand Authority</h5>
+                    <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
+                      Being ranked is only the first step. You also need to be a trusted source for information.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 04. OUR FOCUS */}
+      <section id={SectionId.Problem} className="py-32 px-6 bg-black/40 scroll-mt-20">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white">Full-Funnel AIEO</h2>
+            <p className="text-[10px] text-lime-400 font-bold uppercase tracking-[0.3em] mt-2">Discovery across the entire stack</p>
+          </div>
+          <div className="grid md:grid-cols-2 gap-12">
+            {[
+              {
+                title: "Topical Authority",
+                status: "Attract Searches",
+                desc: "Deep niche coverage using original frameworks, terminology, and unique data that AI engines crave.",
+                accent: "lime-400"
+              },
+              {
+                title: "Consistent Identity",
+                status: "Confirm Authority",
+                desc: "Unified brand mentions and descriptions across the web to build cross-platform entity confidence.",
+                accent: "emerald-400"
+              }
+            ].map((box, i) => (
+              <div key={i} className="group p-10 border border-white/5 bg-slate-900/50 hover:border-lime-400/30 transition-all rounded-[7px]">
+                <span className={`text-[9px] font-black uppercase tracking-[0.3em] text-${box.accent} block mb-6`}>{box.status}</span>
+                <h3 className="text-3xl font-black text-white uppercase tracking-tighter mb-6">{box.title}</h3>
+                <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-relaxed">{box.desc}</p>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-16 p-10 bg-lime-400/5 border border-white/5 rounded-[7px] text-center max-w-3xl mx-auto">
+            <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-6">AIEO: Defined</h3>
+            <p className="text-slate-400 text-xs font-bold uppercase tracking-widest leading-loose">
+              AIEO is the practice of structuring your digital presence so search engines, answer engines, and AI models can easily crawl, understand, trust, and reuse your information.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* 05. FAQ SECTION (SEO INTEGRATION) */}
+      <section id={SectionId.FAQ} className="py-24 px-6 bg-slate-950 scroll-mt-20 border-t border-white/5">
+        <div className="max-w-7xl mx-auto">
+           <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-black uppercase tracking-tighter text-white mb-4">
+              Common Questions <span className="text-slate-600">On AI SEO</span>
+            </h2>
+            <p className="text-[10px] text-lime-400 font-bold uppercase tracking-[0.3em]">Synthesized answers to frequent queries</p>
+          </div>
+          
+          <div className="grid md:grid-cols-2 gap-6 mb-12">
+             {faqs.map((faq, i) => (
+               <div 
+                 key={i} 
+                 className={`p-8 bg-white/[0.02] border border-white/5 rounded-[7px] hover:bg-white/[0.04] transition-colors group ${!showAllFaq && i >= 6 ? 'hidden' : 'block'}`}
+               >
+                 <h4 className="text-sm font-black text-white uppercase tracking-wide mb-4 flex items-start gap-3">
+                   <span className="text-lime-400">/</span> {faq.q}
+                 </h4>
+                 <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed border-l-2 border-white/10 pl-4 group-hover:border-lime-400/50 transition-colors">
+                   {faq.a}
+                 </p>
+               </div>
+             ))}
+          </div>
+
+          <div className="text-center">
+            <button 
+              onClick={() => setShowAllFaq(!showAllFaq)}
+              className="group inline-flex items-center gap-3 px-8 py-4 bg-white/[0.02] border border-white/10 hover:border-lime-400/50 hover:bg-white/[0.05] rounded-[7px] transition-all"
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">
+                {showAllFaq ? "Read Less" : "Read More FAQs"}
+              </span>
+              <svg 
+                className={`w-4 h-4 text-lime-400 transition-transform duration-300 ${showAllFaq ? 'rotate-180' : ''}`} 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* 06. CONTACT SECTION */}
+      <section id={SectionId.Contact} className="py-32 px-6 relative overflow-hidden scroll-mt-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-lime-400 to-emerald-500 opacity-90"></div>
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <h2 className="text-5xl md:text-8xl font-black mb-10 uppercase tracking-tighter text-black leading-[0.85]">Improve Your <br /> Visibility.</h2>
+          <p className="text-xl text-black/80 mb-20 font-bold uppercase tracking-widest max-w-2xl mx-auto leading-relaxed">
+            Ensure your brand is the first recommended option. Contact us for a full AIEO audit and strategy.
+          </p>
+          
+          <div className="bg-slate-950 p-10 md:p-16 text-left rounded-[7px] shadow-2xl">
+            <form className="grid sm:grid-cols-2 gap-10" onSubmit={(e) => e.preventDefault()}>
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Email Address</label>
+                <input type="email" className="w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest transition-all rounded-[7px]" placeholder="YOU@COMPANY.COM" />
+              </div>
+              <div className="col-span-2 sm:col-span-1">
+                <label className="block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Services of Interest</label>
+                <div className="relative">
+                  <select className="w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest appearance-none transition-all rounded-[7px] cursor-pointer">
+                    <option className="bg-slate-900">Combined Strategy (SEO + AIEO)</option>
+                    <option className="bg-slate-900">AI Optimization (AIO/AEO)</option>
+                    <option className="bg-slate-900">Search Engine Optimization (SEO)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="col-span-2">
+                <label className="block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4">Message</label>
+                <textarea rows={3} className="w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest rounded-[7px] resize-none" placeholder="HOW CAN WE HELP YOUR BUSINESS?" />
+              </div>
+              <button className="col-span-2 bg-lime-400 text-black font-black py-6 uppercase text-xs tracking-[0.4em] hover:bg-white transition-all duration-300 rounded-[7px]">
+                Request Consultation
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <footer className="py-20 border-t border-white/5 bg-black text-center">
+        <div className="flex justify-center items-center gap-2 mb-4">
+          <span className="text-xl font-black uppercase tracking-tighter text-white">AIEO</span>
+          <span className="text-[10px] font-bold text-lime-400 uppercase tracking-widest">by GetNifty</span>
+        </div>
+        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-700">Digital visibility solutions for modern brands.</p>
+        <div className="mt-10 flex justify-center gap-10 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500">
+          <span className="hover:text-lime-400 cursor-pointer transition-colors">Search Results</span>
+          <span className="hover:text-lime-400 cursor-pointer transition-colors">AI Content</span>
+          <span className="hover:text-lime-400 cursor-pointer transition-colors">Privacy</span>
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default App;

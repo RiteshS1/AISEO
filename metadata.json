@@ -1,0 +1,7 @@
+{
+  "name": "AIEO by GetNifty",
+  "description": "A comprehensive landing page for Artificial Intelligence Engine Optimization (AIEO), featuring an interactive AI-powered brand visibility analyzer.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
