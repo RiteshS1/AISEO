@@ -41,56 +41,8 @@ export interface SocialPlatform {
   observation: string;
 }
 
-export interface AuditResult {
-  overallScore: number;
-  searchVisibilityIndex: number;
-  aiVisibilityIndex: number;
-  hallucinationRisk: number; // 0-100 scale of how likely the AI is guessing/hallucinating
-  logicIntegrity: number; // 0-100 scale of brand/industry/service alignment
-  
-  // Foundation & Technical
-  foundation: SectionScore & {
-    entityConfidence: number;
-    napConsistency: string;
-    schemaValidation: string;
-    knowledgeGraph: 'Yes' | 'Partial' | 'No';
-  };
-
-  technical: SectionScore & {
-    coreWebVitals: string;
-    pageSpeed: number;
-    mobileHealth: string;
-  };
-
-  // Analysis Arrays
-  aiBreakdown: EngineMetrics[];
-  pillarAnalysis: PillarDetail[];
-  technicalChecklist: TechnicalCheckPoint[];
-  socialFootprint: SocialPlatform[];
-
-  // Reputation & Competitors
-  authority: SectionScore & {
-    referringDomains: number;
-    sentimentScore: number;
-    trustSignals: string[];
-  };
-
-  traditionalRankings: {
-    engine: string;
-    rank: string;
-    status: 'Critical' | 'Optimal' | 'Average';
-  }[];
-
-  competitors: CompetitorData[];
-  globalRecommendations: {
-    title: string;
-    action: string;
-    priority: 'High' | 'Medium' | 'Low';
-    timeline: string;
-  }[];
-
-  sources: { title: string; uri: string }[];
-}
+/** Re-exported from Zod schema (single source of truth for audit response shape). */
+export type { AuditResult } from './lib/schemas/auditResult';
 
 export interface MailerLiteSubscriber {
   email: string;
