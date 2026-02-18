@@ -4,22 +4,33 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "validate-gemini": "node scripts/validate-gemini-keys.mjs"
   },
   "dependencies": {
-    "react": "^19.2.4",
-    "@google/genai": "^1.40.0",
-    "react-dom": "^19.2.4",
-    "jspdf": "^2.5.1",
-    "recharts": "^2.15.0",
-    "html2canvas": "1.4.1"
+    "@google/genai": "1.40.0",
+    "@supabase/supabase-js": "2.45.0",
+    "html2canvas": "1.4.1",
+    "jspdf": "2.5.1",
+    "next": "15.0.3",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "recharts": "2.15.0",
+    "zod": "3.23.8"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "@vitejs/plugin-react": "^5.0.0",
-    "typescript": "~5.8.2",
-    "vite": "^6.2.0"
+    "@types/node": "22.9.0",
+    "@types/react": "19.0.1",
+    "@types/react-dom": "19.0.2",
+    "autoprefixer": "10.4.20",
+    "eslint": "8.57.0",
+    "eslint-config-next": "15.0.3",
+    "postcss": "8.4.47",
+    "tailwindcss": "3.4.14",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "5.6.3"
   }
 }
