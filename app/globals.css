@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-size: 16px; /* Forces 1rem = 16px, fixing the "tiny font" issue */
+  }
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  scroll-behavior: smooth;
+  background-color: #020617;
+  color: #ffffff;
+}
+
+.mono { font-family: 'JetBrains Mono', monospace; }
+
+.gradient-text {
+  background: linear-gradient(90deg, #d9ff00 0%, #a3e635 50%, #4ade80 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #d9ff00; /* Fallback for tools that don't support clipping */
+}
+
+/* Ensure html2canvas doesn't render background-clip:text as a solid block */
+.no-gradient-clip {
+  background: none !important;
+  -webkit-background-clip: border-box !important;
+  background-clip: border-box !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #d9ff00 !important;
+}
+
+.gloss-panel {
+  background: linear-gradient(135deg, rgba(217, 255, 0, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(217, 255, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+  border-radius: 7px;
+}
+
+.gloss-panel::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(217, 255, 0, 0.05), transparent);
+  transform: skewX(-25deg);
+  transition: 0.75s;
+}
+
+.gloss-panel:hover::before {
+  left: 150%;
+}
+
+.sharp-border {
+  border: 1px solid rgba(217, 255, 0, 0.15);
+  border-radius: 7px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #020617; }
+::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 7px; }
+::-webkit-scrollbar-thumb:hover { background: #d9ff00; }
+
+/* Chart customization (match old Vite app – no !important) */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.05);
+}
+.recharts-polar-grid-concentric-path,
+.recharts-polar-angle-axis-line {
+  stroke: rgba(255, 255, 255, 0.1);
+}
