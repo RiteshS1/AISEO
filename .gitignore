@@ -1,3 +1,17 @@
+# Dependencies and build
+node_modules
+.next
+out
+.vercel
+dist
+dist-ssr
+
+# Env (do not commit secrets)
+.env
+.env.*
+!.env.example
+*.local
+
 # Logs
 logs
 *.log
@@ -6,15 +20,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-node_modules
-.next
-dist
-dist-ssr
-.env
-.env.*
-!.env.example
-*.local
 
 # Editor directories and files
 .vscode/*

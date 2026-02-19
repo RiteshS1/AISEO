@@ -30,4 +30,4 @@ Audit form → `POST /api/audit` (Gemini + Zod) → report saved to Supabase →
 
 ## Deploy (Vercel)
 
-Import repo, set the env vars above for Production, deploy. Ensure Supabase `reports` table uses `report_id` (see migration).
+Import repo, set the env vars above for Production, deploy. Ensure Supabase `reports` table uses `report_id` (see migration). Do not commit `.next` (build output); it is in `.gitignore`. If `.next` was ever committed, run from the app root: `git rm -r --cached .next` then commit.
