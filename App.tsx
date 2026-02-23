@@ -12,6 +12,7 @@ const LANDING_LOADER_MS = 2000
 const App: React.FC = () => {
   const [showAllFaq, setShowAllFaq] = useState(false)
   const [auditReady, setAuditReady] = useState(false)
+  const [contactSubmitting, setContactSubmitting] = useState(false)
 
   useEffect(() => {
     const t = setTimeout(() => setAuditReady(true), LANDING_LOADER_MS)
@@ -185,7 +186,7 @@ const App: React.FC = () => {
       </section>
 
       {/* 04. OUR FOCUS */}
-      <section id={SectionId.Problem} className='py-32 px-6 bg-black/40 scroll-mt-20'>
+      <section id={SectionId.Solution} className='py-32 px-6 bg-black/40 scroll-mt-20'>
         <div className='max-w-7xl mx-auto'>
           <div className='text-center mb-16'>
             <h2 className='text-4xl md:text-5xl font-black uppercase tracking-tighter text-white'>Full-Funnel AIEO</h2>
@@ -276,35 +277,43 @@ const App: React.FC = () => {
           </p>
 
           <div className='bg-slate-950 p-10 md:p-16 text-left rounded-[7px] shadow-2xl'>
-            <form className='grid sm:grid-cols-2 gap-10' onSubmit={(e) => e.preventDefault()}>
+            <form
+              className='grid sm:grid-cols-2 gap-10'
+              onSubmit={(e) => {
+                e.preventDefault()
+                setContactSubmitting(true)
+                setTimeout(() => setContactSubmitting(false), 1500)
+              }}
+            >
               <div className='col-span-2 sm:col-span-1'>
-                <label className='block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4'>Email Address</label>
+                <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Email address</label>
                 <input
                   type='email'
-                  className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest transition-all rounded-[7px]'
-                  placeholder='YOU@COMPANY.COM'
+                  className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm transition-all rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                  placeholder='you@company.com'
                 />
               </div>
               <div className='col-span-2 sm:col-span-1'>
-                <label className='block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4'>Services of Interest</label>
+                <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Services of interest</label>
                 <div className='relative'>
-                  <select className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest appearance-none transition-all rounded-[7px] cursor-pointer'>
-                    <option className='bg-slate-900'>Combined Strategy (SEO + AIEO)</option>
-                    <option className='bg-slate-900'>AI Optimization (AIO/AEO)</option>
-                    <option className='bg-slate-900'>Search Engine Optimization (SEO)</option>
+                  <select className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm appearance-none transition-all rounded-[7px] cursor-pointer placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'>
+                    <option value='' disabled className='bg-slate-900 text-white/50'>Select a service...</option>
+                    <option className='bg-slate-900' value='combined'>Combined strategy (SEO + AIEO)</option>
+                    <option className='bg-slate-900' value='ai'>AI optimization (AIO/AEO)</option>
+                    <option className='bg-slate-900' value='seo'>Search engine optimization (SEO)</option>
                   </select>
                 </div>
               </div>
               <div className='col-span-2'>
-                <label className='block text-white/40 text-[10px] font-bold uppercase tracking-[0.2em] mb-4'>Message</label>
+                <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Message</label>
                 <textarea
                   rows={3}
-                  className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white focus:outline-none focus:border-lime-400 font-bold uppercase text-xs tracking-widest rounded-[7px] resize-none'
-                  placeholder='HOW CAN WE HELP YOUR BUSINESS?'
+                  className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm rounded-[7px] resize-none placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                  placeholder='Tell us about your goals...'
                 />
               </div>
-              <button className='col-span-2 bg-lime-400 text-black font-black py-6 uppercase text-xs tracking-[0.4em] hover:bg-white transition-all duration-300 rounded-[7px]'>
-                Request Consultation
+              <button type='submit' disabled={contactSubmitting} className='col-span-2 bg-lime-400 text-black font-black py-6 text-sm tracking-widest hover:bg-white transition-all duration-300 rounded-[7px] disabled:opacity-50'>
+                {contactSubmitting ? 'Processing...' : 'Request consultation'}
               </button>
             </form>
           </div>
