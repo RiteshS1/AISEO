@@ -1,4 +1,3 @@
-
 export interface SectionScore {
   score: number;
   status: 'Critical' | 'Optimal' | 'Average';
@@ -43,15 +42,6 @@ export interface SocialPlatform {
 
 /** Re-exported from Zod schema (single source of truth for audit response shape). */
 export type { AuditResult } from './lib/schemas/auditResult';
-
-export interface MailerLiteSubscriber {
-  email: string;
-  brandName: string;
-  industry: string;
-  websiteUrl: string;
-  keywords: string;
-  reportUrl?: string;
-}
 
 export enum SectionId {
   Hero = 'hero',

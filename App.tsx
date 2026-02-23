@@ -1,6 +1,7 @@
 'use client'
 
 import AuditTool from '@/components/AuditTool'
+import { DEMO_INITIAL_DATA } from '@/components/AuditTool'
 import Navbar from '@/components/Navbar'
 import { FAQ_ITEMS } from '@/constants/faq'
 import { SectionId } from '@/types'
@@ -13,7 +14,7 @@ const App: React.FC = () => {
     <div className='min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30'>
       <Navbar />
 
-      {/* 01. AUDIT TOOL (HERO) */}
+      {/* 01. AUDIT TEASER (HERO) */}
       <section id={SectionId.Audit} className='pt-32 pb-20 px-6 relative scroll-mt-20'>
         <div
           className='absolute inset-0 z-0 opacity-[0.03] pointer-events-none'
@@ -34,7 +35,7 @@ const App: React.FC = () => {
           </div>
 
           <div className='relative max-w-5xl mx-auto'>
-            <AuditTool />
+            <AuditTool initialData={DEMO_INITIAL_DATA} isPublicDemo />
           </div>
         </div>
       </section>

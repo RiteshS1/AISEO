@@ -1,30 +1,34 @@
-'use client';
-
-import { useParams } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import Navbar from '@/components/Navbar';
-import AuditTool from '@/components/AuditTool';
+import DashboardNav from '@/app/dashboard/DashboardNav';
+import ReportContent from './ReportContent';
 
-export default function ReportPage() {
-  const params = useParams();
-  const reportId = typeof params.reportId === 'string' ? params.reportId : undefined;
+export default async function ReportPage({
+  params,
+}: {
+  params: Promise<{ reportId: string }>;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const { reportId } = await params;
+
+  const content = <ReportContent />;
+
+  if (user) {
+    return (
+      <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30 flex">
+        <DashboardNav userEmail={user.email ?? ''} />
+        <main className="flex-1 min-w-0">{content}</main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30">
       <Navbar />
-      <section className="pt-32 pb-20 px-6 relative scroll-mt-20">
-        <div
-          className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none"
-          style={{
-            backgroundImage: 'radial-gradient(#d9ff00 1px, transparent 1px)',
-            backgroundSize: '32px 32px',
-          }}
-        />
-        <div className="max-w-7xl mx-auto relative z-10">
-          <div className="relative max-w-5xl mx-auto">
-            <AuditTool initialReportId={reportId} />
-          </div>
-        </div>
-      </section>
+      <ReportContent compact={false} />
     </div>
   );
 }

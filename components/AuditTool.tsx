@@ -2,6 +2,7 @@ import { AUDIT_FORM_QUESTIONS } from '@/constants/auditForm'
 import { REPORT_NAV_ITEMS } from '@/constants/reportTabs'
 import type { AuditInputs } from '@/lib/schemas/auditInputs'
 import { AuditResult } from '@/types'
+import Link from 'next/link'
 import React, { useEffect, useRef, useState } from 'react'
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from 'recharts'
 
@@ -11,6 +12,50 @@ type ReportPage = 'COVER' | 'SUMMARY' | 'ANALYTICS' | 'DIAGNOSTIC' | 'SOCIAL' | 
 export interface AuditToolInitialData {
   result: AuditResult
   inputs: AuditInputs
+}
+
+const SCANNING_MESSAGES = [
+  'Crawling entity data...',
+  'Analyzing search pillars...',
+  'Synthesizing AI visibility score...',
+  'Mapping brand signals...',
+  'Aggregating AI sentiments...',
+]
+
+function ScanningStep({ loadingProgress }: { loadingProgress: number }) {
+  const [messageIndex, setMessageIndex] = useState(0)
+  useEffect(() => {
+    const t = setInterval(() => {
+      setMessageIndex((i) => (i + 1) % SCANNING_MESSAGES.length)
+    }, 2200)
+    return () => clearInterval(t)
+  }, [])
+
+  return (
+    <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px] overflow-hidden'>
+      <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
+        <div className='w-[400px] h-[400px] rounded-full border border-lime-400/10 animate-pulse' style={{ animationDuration: '2.5s' }} />
+        <div className='absolute w-[320px] h-[320px] rounded-full border border-lime-400/15 animate-pulse' style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
+        <div className='absolute w-[240px] h-[240px] rounded-full border border-lime-400/20 animate-pulse' style={{ animationDuration: '1.8s', animationDelay: '0.4s' }} />
+      </div>
+      <div className='relative z-10 flex flex-col items-center'>
+        <div className='w-16 h-16 border-2 border-lime-400/30 border-t-lime-400 animate-spin rounded-full mb-10 shadow-[0_0_30px_rgba(163,230,53,0.2)]' />
+        <h3 className='text-2xl font-black uppercase tracking-widest mb-4 text-white'>Scanning</h3>
+        <p className='text-lime-400/90 text-[11px] font-black uppercase tracking-[0.3em] mb-10 min-h-[1.5em] transition-opacity duration-500'>
+          {SCANNING_MESSAGES[messageIndex]}
+        </p>
+        <div className='w-full max-w-md'>
+          <div className='h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/10 shadow-inner'>
+            <div
+              className='h-full bg-lime-400 rounded-full transition-all duration-500 ease-out shadow-[0_0_20px_rgba(163,230,53,0.5)]'
+              style={{ width: `${Math.min(loadingProgress, 100)}%` }}
+            />
+          </div>
+          <p className='text-[9px] text-slate-500 font-black uppercase tracking-widest mt-3'>{Math.round(loadingProgress)}%</p>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 const MOCK_DEMO_RESULT: AuditResult = {
@@ -123,12 +168,28 @@ const MOCK_DEMO_RESULT: AuditResult = {
   sources: [],
 }
 
+const DEMO_INPUTS: AuditInputs = {
+  brandName: 'Lumina Solar',
+  industry: 'Renewable Energy',
+  websiteUrl: 'www.luminasolar.example',
+  keywords: 'solar installation, renewable panels',
+  location: 'Maryland, USA',
+  serviceCategories: 'Residential Solar, Battery Backup',
+}
+
+export const DEMO_INITIAL_DATA: AuditToolInitialData = {
+  inputs: DEMO_INPUTS,
+  result: MOCK_DEMO_RESULT,
+}
+
 interface AuditToolProps {
   initialData?: AuditToolInitialData
   initialReportId?: string
+  isPublicDemo?: boolean
+  isAdminView?: boolean
 }
 
-const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) => {
+const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView }) => {
   const formDataInitial: AuditInputs = initialData?.inputs ?? {
     brandName: '',
     industry: '',
@@ -146,20 +207,23 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
   const [reportId, setReportId] = useState<string | null>(null)
   const [error, setError] = useState('')
   const [loadingProgress, setLoadingProgress] = useState(0)
+  const [pendingReviewMessage, setPendingReviewMessage] = useState(false)
+  const [demoResolved, setDemoResolved] = useState(!isPublicDemo)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const reportRef = useRef<HTMLDivElement>(null)
   const analysisStartedRef = useRef(false)
 
-  // Hydrate from initialData (e.g. /report/[id] page)
+  // Hydrate from initialData (e.g. /report/[id] page or public demo) — avoid FOUC by resolving before showing form
   useEffect(() => {
     if (initialData) {
       setFormData(initialData.inputs)
       setResult(initialData.result)
       setStep('COMPLETE')
       setActivePage('COVER')
+      if (isPublicDemo) setDemoResolved(true)
     }
-  }, [initialData])
+  }, [initialData, isPublicDemo])
 
   // Fetch report by ID when initialReportId is provided (client-side fetch for report page)
   useEffect(() => {
@@ -287,24 +351,17 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!userEmail) return
+    if (!reportId) {
+      setError('Report is not ready. Please try again.')
+      return
+    }
 
     setStep('FINALIZING')
     setLoadingProgress(0)
-
-    const origin = typeof window !== 'undefined' ? window.location.origin : ''
-    const shareableUrl = reportId
-      ? `${origin}/report/${reportId}`
-      : `${origin}/?${new URLSearchParams({
-          brandName: formData.brandName,
-          industry: formData.industry,
-          websiteUrl: formData.websiteUrl,
-          keywords: formData.keywords,
-          location: formData.location,
-          serviceCategories: formData.serviceCategories,
-        }).toString()}`
+    setError('')
 
     try {
-      const res = await fetch('/api/mailerlite', {
+      const res = await fetch('/api/request-approval', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -313,16 +370,21 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
           industry: formData.industry,
           websiteUrl: formData.websiteUrl,
           keywords: formData.keywords,
-          reportId: reportId ?? undefined,
-          reportUrl: shareableUrl,
+          reportId,
         }),
       })
       if (!res.ok) {
         const json = await res.json().catch(() => ({}))
-        console.error('MailerLite signup error', json)
+        setError((json as { error?: string }).error ?? 'Something went wrong. Please try again.')
+        setStep('GATE')
+        return
       }
+      setPendingReviewMessage(true)
     } catch (err) {
       console.error('Signup error', err)
+      setError('Something went wrong. Please try again.')
+      setStep('GATE')
+      return
     }
     setStep('COMPLETE')
     setActivePage('COVER')
@@ -343,12 +405,25 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
           { subject: 'Trust', A: 0, fullMark: 100 },
         ]
 
-  const isRestricted = (page: ReportPage) => page !== 'COVER' && page !== 'SUMMARY'
+  const isRestricted = (page: ReportPage) =>
+    isAdminView ? false : page !== 'COVER' && page !== 'SUMMARY'
 
   return (
     <div className='w-full p-0.5 bg-gradient-to-r from-lime-400 via-emerald-400 to-lime-400 shadow-neon rounded-[7px]'>
       <div className='w-full bg-slate-950 border border-white/5 min-h-[600px] flex flex-col relative overflow-hidden rounded-[7px]'>
-        {step === 'INPUT' && (
+        {isPublicDemo && !demoResolved && (
+          <div className='min-h-[600px] flex flex-col items-center justify-center p-20 relative z-20'>
+            <div className='absolute inset-0 bg-slate-950/80 backdrop-blur-sm' />
+            <div className='relative z-10 flex flex-col items-center justify-center'>
+              <div className='w-20 h-20 rounded-[12px] bg-white/[0.03] border border-lime-400/20 flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(163,230,53,0.15)] animate-pulse'>
+                <span className='text-2xl font-black uppercase tracking-tighter text-lime-400'>AISEO</span>
+              </div>
+              <div className='w-12 h-12 border-2 border-lime-400/20 border-t-lime-400 animate-spin rounded-full' />
+              <p className='text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mt-6'>Loading report</p>
+            </div>
+          </div>
+        )}
+        {!(isPublicDemo && !demoResolved) && step === 'INPUT' && (
           <div className='max-w-xl mx-auto w-full p-16 min-h-[540px] flex flex-col justify-center animate-in fade-in duration-500 relative z-10'>
             <div className='flex gap-1 mb-12'>
               {AUDIT_FORM_QUESTIONS.map((_, i) => (
@@ -386,20 +461,11 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
           </div>
         )}
 
-        {step === 'SCANNING' && (
-          <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px]'>
-            <div className='w-24 h-24 border-2 border-lime-400/10 border-t-lime-400 animate-spin rounded-full mb-12'></div>
-            <h3 className='text-2xl font-black uppercase tracking-widest mb-4 text-white'>Aggregating Data</h3>
-            <p className='text-lime-400/60 text-[10px] font-black uppercase tracking-[0.4em] mb-12 animate-pulse'>
-              {loadingProgress < 50 ? 'Crawling Public Records...' : 'Analyzing AI Sentiments...'}
-            </p>
-            <div className='w-64 h-0.5 bg-white/5 border border-white/10 rounded-full overflow-hidden'>
-              <div className='h-full bg-lime-400' style={{ width: `${loadingProgress}%` }} />
-            </div>
-          </div>
+        {!(isPublicDemo && !demoResolved) && step === 'SCANNING' && (
+          <ScanningStep loadingProgress={loadingProgress} />
         )}
 
-        {step === 'GATE' && (
+        {!(isPublicDemo && !demoResolved) && step === 'GATE' && (
           <div className='grid md:grid-cols-2 animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10 min-h-[600px]'>
             <div className='p-20 border-r border-white/5 bg-slate-900/10'>
               <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.4em] block mb-10'>Analysis Complete</span>
@@ -423,6 +489,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                   className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white focus:outline-none focus:border-lime-400 transition-all text-[11px] font-black uppercase tracking-widest rounded-[7px]'
                   required
                 />
+                {error && <p className='text-red-500 text-[9px] font-black uppercase tracking-widest'>{error}</p>}
                 <button type='submit' className='w-full py-6 bg-lime-400 text-black font-black uppercase text-[11px] tracking-[0.4em] hover:bg-white transition-all rounded-[7px]'>
                   Access Report
                 </button>
@@ -431,16 +498,21 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
           </div>
         )}
 
-        {step === 'FINALIZING' && (
+        {!(isPublicDemo && !demoResolved) && step === 'FINALIZING' && (
           <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px]'>
             <div className='w-20 h-20 border-4 border-lime-400/5 border-t-lime-400 animate-spin rounded-full mb-12'></div>
             <h3 className='text-3xl font-black uppercase tracking-tighter text-white mb-4'>Finalizing Analysis</h3>
           </div>
         )}
 
-        {step === 'COMPLETE' && result && (
+        {!(isPublicDemo && !demoResolved) && step === 'COMPLETE' && result && (
           <div className='flex flex-col md:flex-row min-h-[800px] animate-in fade-in duration-1000'>
             <div className='w-full md:w-72 border-r border-white/5 bg-slate-900/10 flex flex-col p-8 shrink-0'>
+              {pendingReviewMessage && (
+                <p className='text-lime-400 text-[10px] font-bold uppercase tracking-widest mb-6'>
+                  Success! Our experts are reviewing your custom report. You will receive it in your inbox shortly.
+                </p>
+              )}
               <div className='mb-12'>
                 <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.5em] block mb-2'>Audit Report</span>
                 <h4 className='text-white font-black uppercase tracking-tighter text-xl truncate'>{formData.brandName}</h4>
@@ -461,21 +533,23 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                 ))}
               </div>
 
-              <button
-                type='button'
-                onClick={() => {
-                  setStep('INPUT')
-                  setFormStep(0)
-                  setResult(null)
-                  setActivePage('COVER')
-                }}
-                className='w-full flex items-center justify-center gap-2 px-4 py-3 mt-4 text-[10px] font-black uppercase tracking-widest rounded-[7px] transition-all text-slate-500 hover:text-white hover:bg-white/5'
-              >
-                <svg className='w-3 h-3 shrink-0' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                  <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
-                </svg>
-                Back to Audit
-              </button>
+              {!isPublicDemo && (
+                <button
+                  type='button'
+                  onClick={() => {
+                    setStep('INPUT')
+                    setFormStep(0)
+                    setResult(null)
+                    setActivePage('COVER')
+                  }}
+                  className='w-full flex items-center justify-center gap-2 px-4 py-3 mt-4 text-[10px] font-black uppercase tracking-widest rounded-[7px] transition-all text-slate-500 hover:text-white hover:bg-white/5'
+                >
+                  <svg className='w-3 h-3 shrink-0' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                    <path strokeLinecap='round' strokeLinejoin='round' strokeWidth={2.5} d='M10 19l-7-7m0 0l7-7m-7 7h18' />
+                  </svg>
+                  Back to Audit
+                </button>
+              )}
 
               <div className='mt-auto pt-10 border-t border-white/5 text-center'>
                 <p className='text-[8px] text-slate-600 font-black uppercase tracking-[0.2em]'>© 2025 GetNifty AIEO Analytics</p>
@@ -498,24 +572,43 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                           />
                         </svg>
                       </div>
-                      <h3 className='text-2xl font-black text-white uppercase tracking-tighter mb-4'>Report Restricted</h3>
-                      <p className='text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed mb-4'>
-                        We've sent the complete high-fidelity 22-point PDF audit to your inbox.
-                      </p>
-                      <p className='text-[10px] text-lime-400 font-black uppercase tracking-widest'>
-                        Check <span className='underline'>{userEmail}</span> to unlock full access.
-                      </p>
+                      <h3 className='text-2xl font-black text-white uppercase tracking-tighter mb-4'>
+                        {isPublicDemo ? 'Register to unlock full access' : 'Report Restricted'}
+                      </h3>
+                      {isPublicDemo ? (
+                        <p className='text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed mb-6'>
+                          Create an account to run your own audit and access the full 22-point report.
+                        </p>
+                      ) : (
+                        <>
+                          <p className='text-[11px] text-slate-400 font-bold uppercase tracking-[0.2em] leading-relaxed mb-4'>
+                            We&apos;ve sent the complete high-fidelity 22-point PDF audit to your inbox.
+                          </p>
+                          <p className='text-[10px] text-lime-400 font-black uppercase tracking-widest'>
+                            Check <span className='underline'>{userEmail}</span> to unlock full access.
+                          </p>
+                        </>
+                      )}
                     </div>
                     <div className='pt-8 border-t border-white/5'>
-                      <button
-                        onClick={() => setActivePage('SUMMARY')}
-                        className='text-[10px] text-slate-500 hover:text-white font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-2 mx-auto'
-                      >
-                        <svg className='w-3 h-3' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
-                          <path d='M10 19l-7-7m0 0l7-7m-7 7h18' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
-                        </svg>
-                        Back to Summary
-                      </button>
+                      {isPublicDemo ? (
+                        <Link
+                          href='/register'
+                          className='inline-flex items-center justify-center gap-2 w-full py-4 bg-lime-400 text-black font-black uppercase text-[11px] tracking-[0.4em] rounded-[7px] hover:bg-white transition-all'
+                        >
+                          Register to unlock full access
+                        </Link>
+                      ) : (
+                        <button
+                          onClick={() => setActivePage('SUMMARY')}
+                          className='text-[10px] text-slate-500 hover:text-white font-black uppercase tracking-[0.4em] transition-all flex items-center justify-center gap-2 mx-auto'
+                        >
+                          <svg className='w-3 h-3' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
+                            <path d='M10 19l-7-7m0 0l7-7m-7 7h18' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round' />
+                          </svg>
+                          Back to Summary
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -589,7 +682,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                         </div>
                         <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-6'>Executive Context</span>
                         <p className='text-slate-200 text-xs lg:text-sm font-bold tracking-[0.1em] leading-loose italic relative z-10 break-words max-w-full uppercase'>
-                          "{result.foundation?.summary || 'Summary generation in progress...'}"
+                          &quot;{result.foundation?.summary || 'Summary generation in progress...'}&quot;
                         </p>
                       </div>
                       <div className='grid grid-cols-2 gap-4 lg:gap-6'>
@@ -655,7 +748,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                       </h2>
                     </div>
 
-                    <div className='grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 items-stretch'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12 items-stretch'>
                       <div className='p-10 bg-white/[0.02] border border-white/5 rounded-[12px] shadow-2xl flex flex-col relative overflow-hidden group'>
                         <div className='absolute top-0 right-0 w-32 h-32 bg-lime-400/5 blur-[80px] -mr-16 -mt-16 group-hover:bg-lime-400/10 transition-all'></div>
                         <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-10 block'>System Pillars</span>
@@ -721,24 +814,22 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                           ))}
                         </div>
                       </div>
+                    </div>
 
-                      <div className='p-10 bg-white/[0.02] border border-white/5 rounded-[12px] shadow-2xl flex flex-col'>
-                        <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-10 block'>Platform Citations</span>
-                        <div className='space-y-8 flex-1 flex flex-col justify-center'>
-                          {(result.aiBreakdown || []).map((engine, i) => (
-                            <div key={i} className='p-6 bg-slate-900/40 border border-white/5 rounded-[8px] relative overflow-hidden group hover:border-lime-400/20 transition-all'>
-                              <div className='absolute top-0 left-0 w-1 h-full bg-lime-400/40'></div>
-                              <div className='flex justify-between items-center mb-4'>
-                                <span className='text-sm font-black text-white uppercase tracking-tighter'>{engine.name}</span>
-                                <div className='flex flex-col items-end'>
-                                  <span className='text-xl font-black text-lime-400 leading-none'>{engine.visibilityScore}%</span>
-                                  <span className='text-[7px] text-slate-500 font-black uppercase tracking-widest'>Visibility</span>
-                                </div>
-                              </div>
-                              <p className='text-[9px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed line-clamp-2 italic'>"{engine.keyTakeaway}"</p>
+                    <div className='mb-12'>
+                      <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-6 block'>Platform Citations</span>
+                      <div className='space-y-4'>
+                        {(result.aiBreakdown || []).map((engine, i) => (
+                          <div key={i} className='p-6 bg-white/[0.02] border border-white/5 rounded-[12px] flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 relative overflow-hidden group hover:border-lime-400/20 transition-all'>
+                            <div className='absolute top-0 left-0 w-1 h-full bg-lime-400/40'></div>
+                            <div className='flex flex-row items-center gap-4 sm:gap-6 flex-1 min-w-0 pl-2'>
+                              <span className='text-sm font-black text-white uppercase tracking-tighter shrink-0'>{engine.name}</span>
+                              <span className='text-xl font-black text-lime-400 leading-none shrink-0'>{engine.visibilityScore}%</span>
+                              <span className='text-[7px] text-slate-500 font-black uppercase tracking-widest shrink-0'>Visibility</span>
                             </div>
-                          ))}
-                        </div>
+                            <p className='text-[10px] text-slate-400 font-bold uppercase tracking-widest leading-relaxed break-words min-w-0 italic flex-1 pl-2'>&quot;{engine.keyTakeaway}&quot;</p>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   </div>
@@ -753,7 +844,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                       </h2>
                     </div>
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-16'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 pb-16'>
                       {(result.technicalChecklist || []).map((item, i) => (
                         <div
                           key={i}
@@ -772,7 +863,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                               {item.status}
                             </span>
                           </div>
-                          <p className='text-[10px] text-slate-500 font-bold uppercase tracking-tight leading-relaxed line-clamp-2'>{item.observation}</p>
+                          <p className='text-[10px] text-slate-500 font-bold uppercase tracking-tight leading-relaxed break-words min-w-0'>{item.observation}</p>
                         </div>
                       ))}
                     </div>
@@ -788,7 +879,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                       </h2>
                     </div>
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-16'>
+                    <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 pb-16'>
                       {(result.socialFootprint || []).map((platform, i) => (
                         <div
                           key={i}
@@ -812,7 +903,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId }) =
                               {platform.sentiment}
                             </span>
                           </div>
-                          <p className='text-slate-400 text-[12px] font-bold uppercase tracking-widest leading-relaxed line-clamp-4 min-h-[96px]'>{platform.observation}</p>
+                          <p className='text-slate-400 text-[12px] font-bold uppercase tracking-widest leading-relaxed break-words min-w-0'>{platform.observation}</p>
                           <div className='absolute bottom-0 right-0 p-4 opacity-5 pointer-events-none text-5xl font-black uppercase italic select-none'>
                             {platform.platform.substring(0, 1)}
                           </div>
