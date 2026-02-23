@@ -9,17 +9,22 @@ export default function UnderstandingAIEOPage() {
         }}
       />
       <div className="relative z-10 max-w-3xl mx-auto">
-        <div className="p-10 md:p-14 bg-slate-900/40 border border-white/10 rounded-[12px] backdrop-blur-sm">
+        <article className="p-10 md:p-14 bg-slate-900/40 border border-white/10 rounded-[12px] backdrop-blur-sm">
           <span className="text-lime-400 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">
             Learn
           </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-6">
-            Understanding AIEO
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-8">
+            The Shift from SEO to AIEO
           </h1>
-          <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
-            Content and resources will be available here.
-          </p>
-        </div>
+          <div className="prose prose-invert max-w-none space-y-6">
+            <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed">
+              Traditional SEO relies on keywords and backlinks. AI Engine Optimization (AIEO) ensures Large Language Models (LLMs) like ChatGPT and Gemini crawl, understand, and trust your brand entity so they can synthesize it into direct answers.
+            </p>
+            <p className="text-slate-400 text-[13px] leading-relaxed">
+              When users ask AI tools for recommendations, your brand only appears if it is structured for machine understanding: clear entity signals, consistent NAP, schema markup, and topical authority. AIEO is the practice of making your digital presence the definitive source that AI engines cite.
+            </p>
+          </div>
+        </article>
       </div>
     </div>
   );

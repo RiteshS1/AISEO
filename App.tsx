@@ -5,10 +5,18 @@ import { DEMO_INITIAL_DATA } from '@/components/AuditTool'
 import Navbar from '@/components/Navbar'
 import { FAQ_ITEMS } from '@/constants/faq'
 import { SectionId } from '@/types'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+
+const LANDING_LOADER_MS = 2000
 
 const App: React.FC = () => {
   const [showAllFaq, setShowAllFaq] = useState(false)
+  const [auditReady, setAuditReady] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setAuditReady(true), LANDING_LOADER_MS)
+    return () => clearTimeout(t)
+  }, [])
 
   return (
     <div className='min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30'>
@@ -34,8 +42,18 @@ const App: React.FC = () => {
             </p>
           </div>
 
-          <div className='relative max-w-5xl mx-auto'>
-            <AuditTool initialData={DEMO_INITIAL_DATA} isPublicDemo />
+          <div className='relative max-w-5xl mx-auto min-h-[540px]'>
+            {!auditReady ? (
+              <div className='w-full min-h-[540px] flex flex-col items-center justify-center p-16 rounded-[7px] border border-white/10 bg-slate-950/80 backdrop-blur-sm'>
+                <div className='w-24 h-24 rounded-[12px] bg-white/[0.03] border border-lime-400/20 flex items-center justify-center mb-8 shadow-[0_0_60px_rgba(163,230,53,0.12)] animate-pulse'>
+                  <span className='text-2xl font-black uppercase tracking-tighter text-lime-400'>AISEO</span>
+                </div>
+                <div className='w-10 h-10 border-2 border-lime-400/20 border-t-lime-400 animate-spin rounded-full' />
+                <p className='text-[10px] text-slate-500 font-black uppercase tracking-[0.3em] mt-6'>Loading report</p>
+              </div>
+            ) : (
+              <AuditTool initialData={DEMO_INITIAL_DATA} isPublicDemo />
+            )}
           </div>
         </div>
       </section>
