@@ -209,6 +209,8 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
   const [error, setError] = useState('')
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [pendingReviewMessage, setPendingReviewMessage] = useState(false)
+  const [gateSubmitting, setGateSubmitting] = useState(false)
+  const [auditSubmitting, setAuditSubmitting] = useState(false)
   const [demoResolved, setDemoResolved] = useState(!isPublicDemo)
 
   const inputRef = useRef<HTMLInputElement>(null)
@@ -277,6 +279,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
     }
     if (formStep < AUDIT_FORM_QUESTIONS.length - 1) setFormStep((prev) => prev + 1)
     else {
+      setAuditSubmitting(true)
       setResult(null)
       setStep('SCANNING')
     }
@@ -312,6 +315,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         if (json.reportId) setReportId(json.reportId)
       } catch (e) {
         console.error('Analysis failed', e)
+        setAuditSubmitting(false)
         setStep('INPUT')
         setError('The report could not be generated. Please check your internet connection and try again.')
       } finally {
@@ -356,7 +360,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
       setError('Report is not ready. Please try again.')
       return
     }
-
+    setGateSubmitting(true)
     setStep('FINALIZING')
     setLoadingProgress(0)
     setError('')
@@ -378,6 +382,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         const json = await res.json().catch(() => ({}))
         setError((json as { error?: string }).error ?? 'Something went wrong. Please try again.')
         setStep('GATE')
+        setGateSubmitting(false)
         return
       }
       setPendingReviewMessage(true)
@@ -385,8 +390,10 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
       console.error('Signup error', err)
       setError('Something went wrong. Please try again.')
       setStep('GATE')
+      setGateSubmitting(false)
       return
     }
+    setGateSubmitting(false)
     setStep('COMPLETE')
     setActivePage('COVER')
   }
@@ -441,15 +448,17 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 placeholder={AUDIT_FORM_QUESTIONS[formStep].placeholder}
-                className='w-full bg-transparent border-b border-white/10 focus:border-lime-400 py-4 text-2xl text-white focus:outline-none transition-all placeholder:text-white/5 uppercase font-bold tracking-tight'
+                className='w-full bg-transparent border-b border-white/10 py-4 text-2xl text-white transition-all placeholder:text-white/40 font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
               />
               {error && <p className='text-red-500 text-[9px] font-black uppercase mt-4 tracking-widest'>{error}</p>}
               <div className='flex flex-wrap gap-4 mt-12'>
                 <button
+                  type='button'
                   onClick={nextFormStep}
-                  className='px-10 py-5 bg-lime-400 text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all rounded-[7px]'
+                  disabled={auditSubmitting}
+                  className='px-10 py-5 bg-lime-400 text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50'
                 >
-                  {formStep === AUDIT_FORM_QUESTIONS.length - 1 ? 'Analyze Brand' : 'Next'}
+                  {auditSubmitting ? 'Processing...' : formStep === AUDIT_FORM_QUESTIONS.length - 1 ? 'Analyze Brand' : 'Next'}
                 </button>
                 <button
                   onClick={handleLoadDemo}
@@ -486,13 +495,13 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   type='email'
                   value={userEmail}
                   onChange={(e) => setUserEmail(e.target.value)}
-                  placeholder='BUSINESS EMAIL'
-                  className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white focus:outline-none focus:border-lime-400 transition-all text-[11px] font-black uppercase tracking-widest rounded-[7px]'
+                  placeholder='you@company.com'
+                  className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
                   required
                 />
                 {error && <p className='text-red-500 text-[9px] font-black uppercase tracking-widest'>{error}</p>}
-                <button type='submit' className='w-full py-6 bg-lime-400 text-black font-black uppercase text-[11px] tracking-[0.4em] hover:bg-white transition-all rounded-[7px]'>
-                  Access Report
+                <button type='submit' disabled={gateSubmitting} className='w-full py-6 bg-lime-400 text-black font-black text-[11px] tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50'>
+                  {gateSubmitting ? 'Processing...' : 'Access Report'}
                 </button>
               </form>
             </div>

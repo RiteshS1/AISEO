@@ -59,7 +59,7 @@ function LoginForm() {
           </p>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">
+              <label className="block text-slate-400 text-[10px] font-bold tracking-widest mb-2">
                 Email
               </label>
               <input
@@ -68,11 +68,11 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@company.com"
-                className="w-full bg-black/40 border border-white/10 px-6 py-4 text-white focus:outline-none focus:border-lime-400 transition-all text-[11px] font-bold uppercase tracking-widest rounded-[7px] placeholder:text-white/30"
+                className="w-full bg-black/40 border border-white/10 px-6 py-4 text-white transition-all text-[11px] font-medium rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400"
               />
             </div>
             <div>
-              <label className="block text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">
+              <label className="block text-slate-400 text-[10px] font-bold tracking-widest mb-2">
                 Password
               </label>
               <input
@@ -81,20 +81,20 @@ function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
-                className="w-full bg-black/40 border border-white/10 px-6 py-4 text-white focus:outline-none focus:border-lime-400 transition-all text-[11px] font-bold uppercase tracking-widest rounded-[7px] placeholder:text-white/30"
+                className="w-full bg-black/40 border border-white/10 px-6 py-4 text-white transition-all text-[11px] font-medium rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400"
               />
             </div>
             {error && (
-              <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest">
+              <p className="text-red-500 text-[10px] font-bold tracking-widest">
                 {error}
               </p>
             )}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-lime-400 text-black font-black uppercase text-[11px] tracking-[0.4em] hover:bg-white transition-all rounded-[7px] disabled:opacity-50"
+              className="w-full py-4 bg-lime-400 text-black font-black text-[11px] tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50"
             >
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? 'Processing...' : 'Sign in'}
             </button>
           </form>
           <p className="mt-6 text-center text-slate-500 text-[10px] font-bold uppercase tracking-widest">
