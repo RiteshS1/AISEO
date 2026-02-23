@@ -18,7 +18,7 @@ export default function ReportContent({ compact = true }: { compact?: boolean })
       />
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="relative max-w-5xl mx-auto">
-          <AuditTool initialReportId={reportId} />
+          <AuditTool initialReportId={reportId} isAdminView isPublicReportPage />
         </div>
       </div>
     </section>

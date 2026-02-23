@@ -13,12 +13,26 @@ export default function WhyGetNiftyPage() {
           <span className="text-lime-400 text-[10px] font-black uppercase tracking-[0.4em] block mb-4">
             About
           </span>
-          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-6">
-            Why GetNifty?
+          <h1 className="text-4xl md:text-5xl font-black uppercase tracking-tighter text-white mb-8">
+            Why Partner With GetNifty?
           </h1>
-          <p className="text-slate-500 text-[11px] font-bold uppercase tracking-widest leading-relaxed">
-            Content and resources will be available here.
+          <p className="text-slate-300 text-sm md:text-base font-medium leading-relaxed mb-8">
+            We are the premier AI visibility agency. We don&apos;t just audit; we execute. From advanced Schema.org mapping to semantic authority building, we ensure your brand is the definitive answer in the AI era.
           </p>
+          <ul className="space-y-4 text-slate-400 text-[13px] leading-relaxed list-none">
+            <li className="flex items-start gap-3">
+              <span className="text-lime-400 font-black shrink-0">01</span>
+              <span>Advanced Schema.org and entity mapping so LLMs can parse your brand correctly.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-lime-400 font-black shrink-0">02</span>
+              <span>Semantic authority and topical depth that AI engines prioritize.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <span className="text-lime-400 font-black shrink-0">03</span>
+              <span>End-to-end execution: from audit to implementation, not just reports.</span>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

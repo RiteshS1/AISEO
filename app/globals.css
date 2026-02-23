@@ -64,6 +64,12 @@ body {
   border-radius: 7px;
 }
 
+/* Barcode / document scanner line (SCANNING step) */
+@keyframes scan-sweep {
+  0%, 100% { top: 0; }
+  50% { top: calc(100% - 2px); }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #020617; }

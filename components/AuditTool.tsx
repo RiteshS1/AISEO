@@ -16,8 +16,8 @@ export interface AuditToolInitialData {
 
 const SCANNING_MESSAGES = [
   'Crawling entity data...',
-  'Analyzing search pillars...',
   'Synthesizing AI visibility score...',
+  'Analyzing search pillars...',
   'Mapping brand signals...',
   'Aggregating AI sentiments...',
 ]
@@ -33,12 +33,11 @@ function ScanningStep({ loadingProgress }: { loadingProgress: number }) {
 
   return (
     <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px] overflow-hidden'>
-      <div className='absolute inset-0 flex items-center justify-center pointer-events-none'>
-        <div className='w-[400px] h-[400px] rounded-full border border-lime-400/10 animate-pulse' style={{ animationDuration: '2.5s' }} />
-        <div className='absolute w-[320px] h-[320px] rounded-full border border-lime-400/15 animate-pulse' style={{ animationDuration: '2s', animationDelay: '0.2s' }} />
-        <div className='absolute w-[240px] h-[240px] rounded-full border border-lime-400/20 animate-pulse' style={{ animationDuration: '1.8s', animationDelay: '0.4s' }} />
-      </div>
-      <div className='relative z-10 flex flex-col items-center'>
+      <div
+        className='absolute left-0 right-0 h-0.5 w-full bg-lime-400 shadow-[0_0_15px_#a3e635]'
+        style={{ animation: 'scan-sweep 2.2s ease-in-out infinite' }}
+      />
+      <div className='relative z-10 flex flex-col items-center w-full max-w-lg'>
         <div className='w-16 h-16 border-2 border-lime-400/30 border-t-lime-400 animate-spin rounded-full mb-10 shadow-[0_0_30px_rgba(163,230,53,0.2)]' />
         <h3 className='text-2xl font-black uppercase tracking-widest mb-4 text-white'>Scanning</h3>
         <p className='text-lime-400/90 text-[11px] font-black uppercase tracking-[0.3em] mb-10 min-h-[1.5em] transition-opacity duration-500'>
@@ -187,9 +186,11 @@ interface AuditToolProps {
   initialReportId?: string
   isPublicDemo?: boolean
   isAdminView?: boolean
+  /** When true (e.g. public /report/[id] page), tabs are unlocked but "Back to Audit" is hidden for a read-only deliverable. */
+  isPublicReportPage?: boolean
 }
 
-const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView }) => {
+const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView, isPublicReportPage }) => {
   const formDataInitial: AuditInputs = initialData?.inputs ?? {
     brandName: '',
     industry: '',
@@ -533,7 +534,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                 ))}
               </div>
 
-              {!isPublicDemo && (
+              {!isPublicDemo && !isPublicReportPage && (
                 <button
                   type='button'
                   onClick={() => {
