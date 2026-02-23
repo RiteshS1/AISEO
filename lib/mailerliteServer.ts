@@ -20,6 +20,7 @@ export async function addSubscriber(data: MailerLitePayload): Promise<boolean> {
     console.warn('MAILERLITE_API_KEY is missing or invalid. Subscriber sync skipped.');
     return false;
   }
+  const groupId = process.env.MAILERLITE_GROUP_ID;
 
   try {
     const response = await fetch(`${MAILERLITE_BASE}/subscribers`, {
@@ -39,6 +40,7 @@ export async function addSubscriber(data: MailerLitePayload): Promise<boolean> {
           assessment: truncate(data.reportUrl, 1024),
         },
         status: 'active',
+        ...(groupId ? { groups: [String(groupId)] } : {}),
       }),
     });
 
