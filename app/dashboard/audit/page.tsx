@@ -12,6 +12,10 @@ export default async function DashboardAuditPage() {
   const auditCount = profile?.audit_count ?? 0;
   const limit = 2;
   const allowed = auditCount < limit;
+  const prefillContactName =
+    (user.user_metadata?.full_name as string) ||
+    (user.user_metadata?.name as string) ||
+    (user.email?.split('@')[0] ?? '');
 
   return (
     <div className="p-8 md:p-12 relative">
@@ -23,7 +27,7 @@ export default async function DashboardAuditPage() {
         }}
       />
       <div className="relative z-10 max-w-5xl mx-auto">
-        <AuditPageClient allowed={allowed} />
+        <AuditPageClient allowed={allowed} prefillContactName={prefillContactName} />
       </div>
     </div>
   );

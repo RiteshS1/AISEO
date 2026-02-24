@@ -34,8 +34,8 @@ function ScanningStep({ loadingProgress }: { loadingProgress: number }) {
   return (
     <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px] overflow-hidden'>
       <div
-        className='absolute left-0 right-0 h-0.5 w-full bg-lime-400 shadow-[0_0_15px_#a3e635]'
-        style={{ animation: 'scan-sweep 2.2s ease-in-out infinite' }}
+        className='absolute left-0 right-0 h-8 w-full bg-gradient-to-b from-transparent via-lime-400/50 to-lime-500 border-b-2 border-lime-400 shadow-[0_4px_30px_#a3e635]'
+        style={{ animation: 'scan-sweep 3.5s ease-in-out infinite' }}
       />
       <div className='relative z-10 flex flex-col items-center w-full max-w-lg'>
         <div className='w-16 h-16 border-2 border-lime-400/30 border-t-lime-400 animate-spin rounded-full mb-10 shadow-[0_0_30px_rgba(163,230,53,0.2)]' />
@@ -188,9 +188,11 @@ interface AuditToolProps {
   isAdminView?: boolean
   /** When true (e.g. public /report/[id] page), tabs are unlocked but "Back to Audit" is hidden for a read-only deliverable. */
   isPublicReportPage?: boolean
+  /** Prefill for Gate step when user is authenticated (e.g. from dashboard). */
+  prefillContactName?: string
 }
 
-const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView, isPublicReportPage }) => {
+const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView, isPublicReportPage, prefillContactName }) => {
   const formDataInitial: AuditInputs = initialData?.inputs ?? {
     brandName: '',
     industry: '',
@@ -204,6 +206,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
   const [formStep, setFormStep] = useState(0)
   const [formData, setFormData] = useState<AuditInputs>(formDataInitial)
   const [userEmail, setUserEmail] = useState('')
+  const [fullName, setFullName] = useState(prefillContactName ?? '')
   const [result, setResult] = useState<AuditResult | null>(initialData?.result ?? null)
   const [reportId, setReportId] = useState<string | null>(null)
   const [error, setError] = useState('')
@@ -355,6 +358,10 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!fullName?.trim()) {
+      setError('Full name is required.')
+      return
+    }
     if (!userEmail) return
     if (!reportId) {
       setError('Report is not ready. Please try again.')
@@ -370,6 +377,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          contactName: fullName.trim(),
           email: userEmail,
           brandName: formData.brandName,
           industry: formData.industry,
@@ -489,8 +497,16 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
             </div>
             <div className='p-20 flex flex-col justify-center bg-white/[0.01]'>
               <h3 className='text-xl font-black uppercase tracking-tight mb-2 text-white'>Open the Findings</h3>
-              <p className='text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-12'>Confirm your email to see the full analysis.</p>
+              <p className='text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-12'>Confirm your details to see the full analysis.</p>
               <form onSubmit={handleSignup} className='space-y-6'>
+                <input
+                  type='text'
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder='Full Name'
+                  className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                  required
+                />
                 <input
                   type='email'
                   value={userEmail}
@@ -517,7 +533,23 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
         {!(isPublicDemo && !demoResolved) && step === 'COMPLETE' && result && (
           <div className='flex flex-col md:flex-row min-h-[800px] animate-in fade-in duration-1000'>
-            <div className='w-full md:w-72 border-r border-white/5 bg-slate-900/10 flex flex-col p-8 shrink-0'>
+            {/* Mobile: tab dropdown at top of report */}
+            <div className='block md:hidden p-4 border-b border-white/5 bg-slate-900/10'>
+              <select
+                value={activePage}
+                onChange={(e) => setActivePage(e.target.value as ReportPage)}
+                className='w-full bg-black/40 border border-white/10 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-white rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
+              >
+                {REPORT_NAV_ITEMS.map((item) => (
+                  <option key={item.id} value={item.id}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Desktop: vertical sidebar */}
+            <div className='hidden md:flex w-full md:w-72 border-r border-white/5 bg-slate-900/10 flex-col p-8 shrink-0'>
               {pendingReviewMessage && (
                 <p className='text-lime-400 text-[10px] font-bold uppercase tracking-widest mb-6'>
                   Success! Our experts are reviewing your custom report. You will receive it in your inbox shortly.
@@ -566,7 +598,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
               </div>
             </div>
 
-            <div ref={reportRef} className='flex-1 p-0 md:p-8 lg:p-12 overflow-y-auto max-h-[800px] relative bg-slate-950 report-content flex flex-col'>
+            <div ref={reportRef} className='flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[800px] relative bg-slate-950 report-content flex flex-col'>
               {isRestricted(activePage) && (
                 <div className='absolute inset-0 z-[100] flex items-center justify-center p-12 text-center bg-slate-950/40 backdrop-blur-3xl animate-in fade-in duration-500'>
                   <div className='max-w-md p-10 bg-slate-900/90 border border-white/10 rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden group'>

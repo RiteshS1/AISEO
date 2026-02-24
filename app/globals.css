@@ -64,10 +64,10 @@ body {
   border-radius: 7px;
 }
 
-/* Barcode / document scanner line (SCANNING step) */
+/* Barcode / document scanner beam (SCANNING step) – thick beam, 3.5s */
 @keyframes scan-sweep {
   0%, 100% { top: 0; }
-  50% { top: calc(100% - 2px); }
+  50% { top: calc(100% - 2rem); }
 }
 
 /* Custom scrollbar */
