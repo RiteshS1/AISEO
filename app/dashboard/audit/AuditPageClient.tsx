@@ -3,7 +3,7 @@
 import AuditTool from '@/components/AuditTool';
 import Link from 'next/link';
 
-export default function AuditPageClient({ allowed }: { allowed: boolean }) {
+export default function AuditPageClient({ allowed, prefillContactName }: { allowed: boolean; prefillContactName?: string }) {
   if (!allowed) {
     return (
       <div className="min-h-[600px] flex items-center justify-center p-8">
@@ -52,7 +52,7 @@ export default function AuditPageClient({ allowed }: { allowed: boolean }) {
 
   return (
     <div className="relative">
-      <AuditTool />
+      <AuditTool prefillContactName={prefillContactName} />
     </div>
   );
 }

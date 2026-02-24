@@ -1,6 +1,9 @@
 export interface ApprovalRequestParams {
+  contactName: string;
   brandName: string;
   email: string;
+  industry: string;
+  websiteUrl: string;
   overallScore: number;
   reviewUrl: string;
 }
@@ -19,10 +22,13 @@ export async function sendApprovalRequest(
         title: 'Report approval requested',
         color: 0x57f287,
         fields: [
-          { name: 'Brand', value: params.brandName, inline: true },
+          { name: 'Name', value: params.contactName, inline: false },
           { name: 'Email', value: params.email, inline: true },
+          { name: 'Brand', value: params.brandName, inline: true },
+          { name: 'Industry', value: params.industry, inline: true },
+          { name: 'Website', value: params.websiteUrl, inline: false },
           {
-            name: 'AI Overall Score',
+            name: 'AI Score',
             value: String(params.overallScore),
             inline: true,
           },

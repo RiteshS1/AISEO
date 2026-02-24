@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import FloatingContactWidget from '@/components/FloatingContactWidget';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -38,6 +39,7 @@ export default function RootLayout({
       <head>
         <script
           type="application/ld+json"
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               '@context': 'https://schema.org',
@@ -90,6 +92,7 @@ export default function RootLayout({
       </head>
       <body className={`bg-slate-950 text-slate-50 selection:bg-lime-500/30 antialiased ${inter.className}`} suppressHydrationWarning>
         {children}
+        <FloatingContactWidget />
       </body>
     </html>
   );

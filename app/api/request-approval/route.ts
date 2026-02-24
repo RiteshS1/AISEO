@@ -4,6 +4,7 @@ import { getReport, updateReportPending } from '@/lib/supabaseServer';
 import { sendApprovalRequest } from '@/lib/discordServer';
 
 const bodySchema = z.object({
+  contactName: z.string().min(1, 'Full name is required'),
   email: z.string().email(),
   brandName: z.string(),
   industry: z.string(),
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { reportId, email, brandName } = parsed.data;
+    const { reportId, email, brandName, industry, websiteUrl, contactName } = parsed.data;
 
     const report = await getReport(reportId);
     if (!report) {
@@ -48,8 +49,11 @@ export async function POST(request: Request) {
     const reviewUrl = `${protocol}://${host}/admin/review/${reportId}`;
 
     await sendApprovalRequest({
+      contactName,
       brandName,
       email,
+      industry,
+      websiteUrl,
       overallScore,
       reviewUrl,
     });
