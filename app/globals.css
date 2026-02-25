@@ -70,6 +70,22 @@ body {
   50% { top: calc(100% - 2rem); }
 }
 
+/* Floating contact widget – orbit icons pop out from center */
+@keyframes contact-orbit-in {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0);
+  }
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: #020617; }

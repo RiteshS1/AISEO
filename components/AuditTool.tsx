@@ -32,14 +32,14 @@ function ScanningStep({ loadingProgress }: { loadingProgress: number }) {
   }, [])
 
   return (
-    <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px] overflow-hidden'>
+    <div className='flex flex-col items-center justify-center p-8 sm:p-12 md:p-20 text-center relative z-10 min-h-[600px] overflow-hidden'>
       <div
         className='absolute left-0 right-0 h-8 w-full bg-gradient-to-b from-transparent via-lime-400/50 to-lime-500 border-b-2 border-lime-400 shadow-[0_4px_30px_#a3e635]'
         style={{ animation: 'scan-sweep 3.5s ease-in-out infinite' }}
       />
       <div className='relative z-10 flex flex-col items-center w-full max-w-lg'>
         <div className='w-16 h-16 border-2 border-lime-400/30 border-t-lime-400 animate-spin rounded-full mb-10 shadow-[0_0_30px_rgba(163,230,53,0.2)]' />
-        <h3 className='text-2xl font-black uppercase tracking-widest mb-4 text-white'>Scanning</h3>
+        <h3 className='text-lg sm:text-xl md:text-2xl font-black uppercase tracking-widest mb-4 text-white'>Scanning</h3>
         <p className='text-lime-400/90 text-[11px] font-black uppercase tracking-[0.3em] mb-10 min-h-[1.5em] transition-opacity duration-500'>
           {SCANNING_MESSAGES[messageIndex]}
         </p>
@@ -440,15 +440,15 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
           </div>
         )}
         {!(isPublicDemo && !demoResolved) && step === 'INPUT' && (
-          <div className='max-w-xl mx-auto w-full p-16 min-h-[540px] flex flex-col justify-center animate-in fade-in duration-500 relative z-10'>
-            <div className='flex gap-1 mb-12'>
+          <div className='max-w-xl mx-auto w-full p-6 sm:p-10 md:p-16 min-h-[540px] flex flex-col justify-center animate-in fade-in duration-500 relative z-10'>
+            <div className='flex gap-1 mb-8 md:mb-12'>
               {AUDIT_FORM_QUESTIONS.map((_, i) => (
                 <div key={i} className={`h-1 flex-1 rounded-full transition-all duration-700 ${i <= formStep ? 'bg-lime-400' : 'bg-white/5'}`} />
               ))}
             </div>
             <div key={formStep} className='animate-in fade-in slide-in-from-right-4 duration-500'>
-              <h2 className='text-3xl font-black mb-1 uppercase tracking-tighter text-white'>{AUDIT_FORM_QUESTIONS[formStep].label}</h2>
-              <p className='text-[10px] text-slate-500 mb-10 font-bold uppercase tracking-widest'>{AUDIT_FORM_QUESTIONS[formStep].desc}</p>
+              <h2 className='text-2xl md:text-3xl font-black mb-1 uppercase tracking-tighter text-white'>{AUDIT_FORM_QUESTIONS[formStep].label}</h2>
+              <p className='text-[10px] text-slate-500 mb-8 md:mb-10 font-bold uppercase tracking-widest'>{AUDIT_FORM_QUESTIONS[formStep].desc}</p>
               <input
                 ref={inputRef}
                 name={AUDIT_FORM_QUESTIONS[formStep].name}
@@ -456,7 +456,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                 onChange={handleChange}
                 onKeyDown={handleKeyDown}
                 placeholder={AUDIT_FORM_QUESTIONS[formStep].placeholder}
-                className='w-full bg-transparent border-b border-white/10 py-4 text-2xl text-white transition-all placeholder:text-white/40 font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                className='w-full bg-transparent border-b border-white/10 py-4 text-lg sm:text-xl md:text-2xl text-white transition-all placeholder:text-white/40 font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
               />
               {error && <p className='text-red-500 text-[9px] font-black uppercase mt-4 tracking-widest'>{error}</p>}
               <div className='flex flex-wrap gap-4 mt-12'>
@@ -485,9 +485,9 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
         {!(isPublicDemo && !demoResolved) && step === 'GATE' && (
           <div className='grid md:grid-cols-2 animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10 min-h-[600px]'>
-            <div className='p-20 border-r border-white/5 bg-slate-900/10'>
+            <div className='p-6 sm:p-10 md:p-20 border-r border-white/5 bg-slate-900/10'>
               <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.4em] block mb-10'>Analysis Complete</span>
-              <h2 className='text-6xl font-black mb-8 uppercase tracking-tighter text-white leading-[0.85]'>
+              <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 md:mb-8 uppercase tracking-tighter text-white leading-[0.85]'>
                 Results <br />
                 Ready.
               </h2>
@@ -495,9 +495,9 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                 The visibility report for <span className='text-white font-black'>{formData.brandName}</span> is now available for review.
               </p>
             </div>
-            <div className='p-20 flex flex-col justify-center bg-white/[0.01]'>
-              <h3 className='text-xl font-black uppercase tracking-tight mb-2 text-white'>Open the Findings</h3>
-              <p className='text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-12'>Confirm your details to see the full analysis.</p>
+            <div className='p-6 sm:p-10 md:p-20 flex flex-col justify-center bg-white/[0.01]'>
+              <h3 className='text-lg sm:text-xl font-black uppercase tracking-tight mb-2 text-white'>Open the Findings</h3>
+              <p className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-8 md:mb-12'>Confirm your details to see the full analysis.</p>
               <form onSubmit={handleSignup} className='space-y-6'>
                 <input
                   type='text'
@@ -525,9 +525,9 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         )}
 
         {!(isPublicDemo && !demoResolved) && step === 'FINALIZING' && (
-          <div className='flex flex-col items-center justify-center p-20 text-center relative z-10 min-h-[600px]'>
+          <div className='flex flex-col items-center justify-center p-8 sm:p-12 md:p-20 text-center relative z-10 min-h-[600px]'>
             <div className='w-20 h-20 border-4 border-lime-400/5 border-t-lime-400 animate-spin rounded-full mb-12'></div>
-            <h3 className='text-3xl font-black uppercase tracking-tighter text-white mb-4'>Finalizing Analysis</h3>
+            <h3 className='text-2xl md:text-3xl font-black uppercase tracking-tighter text-white mb-4'>Finalizing Analysis</h3>
           </div>
         )}
 
@@ -600,11 +600,11 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
             <div ref={reportRef} className='flex-1 p-4 md:p-8 lg:p-12 overflow-y-auto max-h-[800px] relative bg-slate-950 report-content flex flex-col'>
               {isRestricted(activePage) && (
-                <div className='absolute inset-0 z-[100] flex items-center justify-center p-12 text-center bg-slate-950/40 backdrop-blur-3xl animate-in fade-in duration-500'>
-                  <div className='max-w-md p-10 bg-slate-900/90 border border-white/10 rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden group'>
+                <div className='absolute inset-0 z-[100] flex items-center justify-center p-4 sm:p-8 md:p-12 text-center bg-slate-950/40 backdrop-blur-3xl animate-in fade-in duration-500'>
+                  <div className='max-w-md p-6 sm:p-8 md:p-10 bg-slate-900/90 border border-white/10 rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden group'>
                     <div className='absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-lime-400 via-emerald-400 to-lime-400'></div>
-                    <div className='mb-8'>
-                      <div className='w-16 h-16 bg-lime-400/10 border border-lime-400/30 rounded-full flex items-center justify-center mx-auto mb-6'>
+                    <div className='mb-6 md:mb-8'>
+                      <div className='w-16 h-16 bg-lime-400/10 border border-lime-400/30 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6'>
                         <svg className='w-8 h-8 text-lime-400' fill='none' viewBox='0 0 24 24' stroke='currentColor'>
                           <path
                             strokeLinecap='round'
@@ -614,7 +614,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                           />
                         </svg>
                       </div>
-                      <h3 className='text-2xl font-black text-white uppercase tracking-tighter mb-4'>
+                      <h3 className='text-xl sm:text-2xl font-black text-white uppercase tracking-tighter mb-4'>
                         {isPublicDemo ? 'Register to unlock full access' : 'Report Restricted'}
                       </h3>
                       {isPublicDemo ? (
@@ -669,33 +669,33 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                       ></div>
                     </div>
 
-                    <div className='mb-20 relative'>
-                      <span className='text-lime-400 text-xs font-black uppercase tracking-[1em] block mb-12 animate-in slide-in-from-top-4 duration-700'>Confidential Report</span>
-                      <div className='h-0.5 w-32 bg-lime-400 mx-auto mb-16 shadow-[0_0_20px_rgba(217,255,0,0.8)]'></div>
-                      <h1 className='text-7xl md:text-8xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.75] animate-in zoom-in-95 duration-1000'>
+                    <div className='mb-12 md:mb-20 relative'>
+                      <span className='text-lime-400 text-xs font-black uppercase tracking-[1em] block mb-8 md:mb-12 animate-in slide-in-from-top-4 duration-700'>Confidential Report</span>
+                      <div className='h-0.5 w-32 bg-lime-400 mx-auto mb-10 md:mb-16 shadow-[0_0_20px_rgba(217,255,0,0.8)]'></div>
+                      <h1 className='text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black uppercase tracking-tighter text-white mb-6 leading-[0.75] animate-in zoom-in-95 duration-1000'>
                         AIEO <br />
                         <span className='text-slate-800'>AUDIT</span>
                       </h1>
-                      <div className='flex items-center justify-center gap-6 mt-10'>
+                      <div className='flex items-center justify-center gap-4 md:gap-6 mt-8 md:mt-10'>
                         <div className='h-[1px] w-12 bg-white/10'></div>
-                        <p className='text-slate-400 text-sm font-black uppercase tracking-[0.6em]'>2025 Visibility Intelligence</p>
+                        <p className='text-slate-400 text-xs sm:text-sm font-black uppercase tracking-[0.6em]'>2025 Visibility Intelligence</p>
                         <div className='h-[1px] w-12 bg-white/10'></div>
                       </div>
                     </div>
 
-                    <div className='mt-auto w-full max-w-2xl border-t border-white/5 pt-12 text-left'>
-                      <div className='grid grid-cols-2 gap-16'>
-                        <div className='space-y-4'>
+                    <div className='mt-auto w-full max-w-2xl border-t border-white/5 pt-8 md:pt-12 text-left'>
+                      <div className='grid grid-cols-2 gap-6 sm:gap-8 md:gap-16'>
+                        <div className='space-y-2 md:space-y-4 min-w-0'>
                           <span className='text-[10px] text-slate-600 font-black uppercase tracking-widest block'>Client Profile</span>
-                          <h3 className='text-2xl font-black text-white uppercase tracking-tight leading-tight'>{formData.brandName}</h3>
+                          <h3 className='text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white uppercase tracking-tight leading-tight break-words'>{formData.brandName}</h3>
                           <div className='flex items-center gap-2'>
-                            <span className='w-1.5 h-1.5 rounded-full bg-lime-400'></span>
-                            <p className='text-[10px] text-slate-400 font-bold uppercase tracking-widest'>{formData.industry}</p>
+                            <span className='w-1.5 h-1.5 rounded-full bg-lime-400 shrink-0'></span>
+                            <p className='text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate'>{formData.industry}</p>
                           </div>
                         </div>
-                        <div className='space-y-4'>
+                        <div className='space-y-2 md:space-y-4 min-w-0'>
                           <span className='text-[10px] text-slate-600 font-black uppercase tracking-widest block'>Generation Date</span>
-                          <h3 className='text-2xl font-black text-white uppercase tracking-tight'>
+                          <h3 className='text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white uppercase tracking-tight break-words'>
                             {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                           </h3>
                           <div className='flex items-center gap-2'>
@@ -709,25 +709,25 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
                 {activePage === 'SUMMARY' && (
                   <div className='p-4 md:p-0 animate-in fade-in duration-500 relative z-10 flex flex-col h-full'>
-                    <div className='mb-16'>
+                    <div className='mb-10 md:mb-16'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 01</span>
-                      <h2 className='text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-none gradient-text'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-tighter leading-none gradient-text'>
                         Analysis <br />
                         Findings
                       </h2>
                     </div>
 
-                    <div className='grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-16 items-start'>
-                      <div className='p-10 bg-white/[0.02] border border-white/5 border-l-[12px] border-l-lime-400 rounded-[8px] shadow-2xl relative overflow-visible min-h-[280px] flex flex-col justify-center h-auto backdrop-blur-md'>
+                    <div className='grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 mb-10 md:mb-16 items-start'>
+                      <div className='p-6 md:p-10 bg-white/[0.02] border border-white/5 border-l-[12px] border-l-lime-400 rounded-[8px] shadow-2xl relative overflow-visible min-h-[200px] md:min-h-[280px] flex flex-col justify-center h-auto backdrop-blur-md'>
                         <div className='absolute -top-4 -right-4 w-12 h-12 bg-slate-900 border border-white/10 flex items-center justify-center rounded-full text-lime-400 font-black italic'>
                           !
                         </div>
-                        <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-6'>Executive Context</span>
+                        <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-4 md:mb-6'>Executive Context</span>
                         <p className='text-slate-200 text-xs lg:text-sm font-bold tracking-[0.1em] leading-loose italic relative z-10 break-words max-w-full uppercase'>
                           &quot;{result.foundation?.summary || 'Summary generation in progress...'}&quot;
                         </p>
                       </div>
-                      <div className='grid grid-cols-2 gap-4 lg:gap-6'>
+                      <div className='grid grid-cols-2 gap-3 md:gap-4 lg:gap-6'>
                         {[
                           {
                             label: 'Overall Visibility',
@@ -739,10 +739,10 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                           { label: 'Alignment', val: `${result.logicIntegrity || 0}%`, color: 'text-emerald-400', desc: 'Category Match' },
                           { label: 'Search Index', val: `${result.searchVisibilityIndex || 0}%`, color: 'text-slate-400', desc: 'Traditional SEO' },
                         ].map((stat, i) => (
-                          <div key={i} className='p-8 bg-white/[0.03] border border-white/5 rounded-[8px] text-center group hover:border-white/10 transition-all'>
-                            <span className='text-[8px] lg:text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-4'>{stat.label}</span>
-                            <div className={`text-4xl font-black ${stat.color} mb-2`}>{stat.val}</div>
-                            <div className='text-[7px] text-slate-600 font-black uppercase tracking-widest'>{stat.desc}</div>
+                          <div key={i} className='p-4 md:p-8 bg-white/[0.03] border border-white/5 rounded-[8px] text-center group hover:border-white/10 transition-all'>
+                            <span className='text-[8px] lg:text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2 md:mb-4'>{stat.label}</span>
+                            <div className={`text-2xl sm:text-3xl md:text-4xl font-black ${stat.color} mb-2`}>{stat.val}</div>
+                            <div className='text-[8px] sm:text-[9px] text-slate-600 font-black uppercase tracking-widest'>{stat.desc}</div>
                           </div>
                         ))}
                       </div>
@@ -785,7 +785,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   <div className='p-4 md:p-0 animate-in fade-in duration-500 h-full relative z-10 flex flex-col'>
                     <div className='mb-16'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 02</span>
-                      <h2 className='text-6xl font-black uppercase tracking-tighter leading-none text-white'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none text-white'>
                         Engine <span className='text-slate-800'>Analytics</span>
                       </h2>
                     </div>
@@ -881,7 +881,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   <div className='p-4 md:p-6 lg:p-10 animate-in fade-in duration-500 relative z-10 flex flex-col'>
                     <div className='mb-12'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 03</span>
-                      <h2 className='text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none text-white'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none text-white'>
                         22-Point <span className='text-slate-800'>Verification</span>
                       </h2>
                     </div>
@@ -916,7 +916,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   <div className='p-4 md:p-6 lg:p-10 animate-in fade-in duration-500 relative z-10 flex flex-col h-full'>
                     <div className='mb-16'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 04</span>
-                      <h2 className='text-6xl lg:text-7xl font-black uppercase tracking-tighter leading-none text-white'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black uppercase tracking-tighter leading-none text-white'>
                         Social <span className='text-slate-800'>Citations</span>
                       </h2>
                     </div>
@@ -959,7 +959,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   <div className='p-4 md:p-6 lg:p-10 animate-in fade-in duration-500 relative z-10 flex flex-col'>
                     <div className='mb-16'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 05</span>
-                      <h2 className='text-6xl font-black uppercase tracking-tighter leading-none text-white'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none text-white'>
                         Optimization <span className='text-slate-800'>Layers</span>
                       </h2>
                     </div>
@@ -997,7 +997,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   <div className='p-4 md:p-6 lg:p-10 animate-in fade-in duration-500 relative z-10 flex flex-col'>
                     <div className='mb-16'>
                       <span className='text-lime-400 text-[10px] font-black uppercase tracking-[0.5em] mb-4 block'>Section 06</span>
-                      <h2 className='text-6xl font-black uppercase tracking-tighter leading-none text-white'>
+                      <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tighter leading-none text-white'>
                         Strategic <span className='text-slate-800'>Roadmap</span>
                       </h2>
                     </div>
