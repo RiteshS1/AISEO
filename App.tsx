@@ -333,8 +333,11 @@ const App: React.FC = () => {
           <a href='#synergy' className='hover:text-lime-400 cursor-pointer transition-colors'>
             AI Content
           </a>
-          <a href='#' className='hover:text-lime-400 cursor-pointer transition-colors'>
-            Privacy
+          <a href='/privacy' target='_blank' rel='noopener noreferrer' className='hover:text-lime-400 cursor-pointer transition-colors'>
+            Privacy Policy
+          </a>
+          <a href='/terms' target='_blank' rel='noopener noreferrer' className='hover:text-lime-400 cursor-pointer transition-colors'>
+            Terms of Service
           </a>
         </div>
       </footer>

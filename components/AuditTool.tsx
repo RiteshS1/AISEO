@@ -268,7 +268,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
     setActivePage('COVER')
   }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setError('')
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }))
   }
@@ -449,15 +449,34 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
             <div key={formStep} className='animate-in fade-in slide-in-from-right-4 duration-500'>
               <h2 className='text-2xl md:text-3xl font-black mb-1 uppercase tracking-tighter text-white'>{AUDIT_FORM_QUESTIONS[formStep].label}</h2>
               <p className='text-[10px] text-slate-500 mb-8 md:mb-10 font-bold uppercase tracking-widest'>{AUDIT_FORM_QUESTIONS[formStep].desc}</p>
-              <input
-                ref={inputRef}
-                name={AUDIT_FORM_QUESTIONS[formStep].name}
-                value={formData[AUDIT_FORM_QUESTIONS[formStep].name]}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                placeholder={AUDIT_FORM_QUESTIONS[formStep].placeholder}
-                className='w-full bg-transparent border-b border-white/10 py-4 text-lg sm:text-xl md:text-2xl text-white transition-all placeholder:text-white/40 font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
-              />
+              {AUDIT_FORM_QUESTIONS[formStep].name === 'serviceCategories' ? (
+                <select
+                  name='serviceCategories'
+                  value={formData.serviceCategories}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDown}
+                  className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-lg sm:text-xl md:text-2xl text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
+                >
+                  <option value='' disabled className='bg-slate-900 text-white'>Select primary service...</option>
+                  <option value='AI Engine Optimization (AIEO)' className='bg-slate-900 text-white'>AI Engine Optimization (AIEO)</option>
+                  <option value='Traditional SEO' className='bg-slate-900 text-white'>Traditional SEO</option>
+                  <option value='Content & Semantic Strategy' className='bg-slate-900 text-white'>Content & Semantic Strategy</option>
+                  <option value='Technical SEO & Schema' className='bg-slate-900 text-white'>Technical SEO & Schema</option>
+                  <option value='Full-Service AI & Web' className='bg-slate-900 text-white'>Full-Service AI & Web</option>
+                  <option value='Other' className='bg-slate-900 text-white'>Other</option>
+                </select>
+              ) : (
+                <input
+                  ref={inputRef}
+                  name={AUDIT_FORM_QUESTIONS[formStep].name}
+                  value={formData[AUDIT_FORM_QUESTIONS[formStep].name]}
+                  onChange={handleChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder={AUDIT_FORM_QUESTIONS[formStep].placeholder}
+                  className='w-full bg-transparent border-b border-white/10 py-4 text-lg sm:text-xl md:text-2xl text-white transition-all placeholder:text-white/40 font-bold tracking-tight focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                />
+              )}
               {error && <p className='text-red-500 text-[9px] font-black uppercase mt-4 tracking-widest'>{error}</p>}
               <div className='flex flex-wrap gap-4 mt-12'>
                 <button

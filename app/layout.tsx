@@ -17,15 +17,34 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AI SEO (AISEO) | Artificial Intelligence Engine Optimization by GetNifty',
+  metadataBase: new URL('https://aiseo-n9lz.vercel.app'),
+  title: 'GetNifty AIEO | Dominate AI Search Visibility',
   description:
-    'Dominate the future of search with AI SEO. We optimize brands for AI engines like ChatGPT, Gemini, and Perplexity. Get a free AI visibility audit today.',
-  keywords:
-    'ai seo, aiseo, artificial intelligence seo, ai search engine optimization, ai seo tools, ai seo software, ai seo agency',
+    'AI Engine Optimization (AIEO) platform. Audit and optimize your brand for ChatGPT, Gemini, Perplexity & LLMs. Free AI visibility audit – get discovered when AI answers.',
+  keywords: [
+    'AIEO',
+    'AI Engine Optimization',
+    'AI search visibility',
+    'ChatGPT visibility',
+    'Gemini ranking',
+    'LLM optimization',
+    'AI SEO',
+    'answer engine optimization',
+    'GetNifty',
+  ],
   openGraph: {
-    title: 'AI SEO (AISEO) | Artificial Intelligence Engine Optimization by GetNifty',
+    title: 'GetNifty AIEO | Dominate AI Search Visibility',
     description:
-      'Dominate the future of search with AI SEO. We optimize brands for AI engines like ChatGPT, Gemini, and Perplexity. Get a free AI visibility audit today.',
+      'AI Engine Optimization platform. Audit your brand for ChatGPT, Gemini & Perplexity. Free AI visibility audit.',
+    url: '/',
+    siteName: 'GetNifty AIEO',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'GetNifty AIEO | Dominate AI Search Visibility',
+    description:
+      'AI Engine Optimization platform. Audit your brand for ChatGPT, Gemini & Perplexity. Free AI visibility audit.',
   },
 };
 
@@ -37,6 +56,27 @@ export default function RootLayout({
   return (
     <html lang="en" className={`scroll-smooth ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
       <head>
+        {process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && (
+          <meta
+            name="google-site-verification"
+            content={process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION}
+          />
+        )}
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': ['Organization', 'SoftwareApplication'],
+              name: 'GetNifty',
+              description:
+                'GetNifty AIEO is an AI Engine Optimization (AIEO) auditing platform that helps brands dominate visibility in AI search. We audit and optimize for ChatGPT, Gemini, Perplexity, and other LLMs so your brand is discovered when AI answers.',
+              applicationCategory: 'BusinessApplication',
+              operatingSystem: 'Web',
+            }),
+          }}
+        />
         <script
           type="application/ld+json"
           suppressHydrationWarning
