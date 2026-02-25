@@ -53,7 +53,7 @@ export default function FloatingContactWidget() {
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-[100] flex flex-col items-end gap-3 py-1 pr-1"
+      className="fixed bottom-24 right-6 z-[100] flex flex-col items-end gap-3 py-1 pr-1 md:bottom-6"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >

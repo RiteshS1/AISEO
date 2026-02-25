@@ -42,6 +42,11 @@ Audit form → `POST /api/audit` (Gemini + Zod) → report saved to Supabase →
 
 **Keep all SQL migration files.** They are the source of truth for the Supabase schema. Run them in order (001 → 002 → 003) when setting up a new environment. Do not delete or edit applied migrations.
 
+## SEO & AIEO tracking
+
+- **Verification checklist and benchmarks:** See [docs/SEO-AIEO-TRACKING.md](docs/SEO-AIEO-TRACKING.md) to verify production pre-flight (metadata, robots, sitemap, JSON-LD) and to track SEO and AIEO ranking/benchmarks (Search Console, Core Web Vitals, AI engine visibility).
+- **Google Search Console:** Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` to the verification code from GSC to add the site-verification meta tag.
+
 ## Deploy (Vercel)
 
 Import repo, set the env vars above for Production, deploy. Run both Supabase migrations. Do not commit `.next` (build output); it is in `.gitignore`. If `.next` was ever committed, run from the app root: `git rm -r --cached .next` then commit.
