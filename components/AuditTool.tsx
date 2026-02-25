@@ -463,7 +463,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                     value={formData.serviceCategories}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-lg sm:text-xl md:text-2xl text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
+                    className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-sm text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
                   >
                     <option value='' disabled className='bg-slate-900 text-white'>Select your industry / primary service...</option>
@@ -485,7 +485,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                       value={otherService}
                       onChange={(e) => setOtherService(e.target.value)}
                       placeholder='Please specify your industry/service...'
-                      className='w-full bg-slate-900/50 border border-slate-700 rounded-[7px] px-4 py-3 mt-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                      className='w-full bg-slate-900/50 border border-slate-700 rounded-[7px] px-4 py-3 mt-3 text-sm text-white placeholder:text-white/40 font-medium focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
                     />
                   )}
                 </>
