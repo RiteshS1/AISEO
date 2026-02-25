@@ -463,7 +463,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                     value={formData.serviceCategories}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-lg sm:text-xl md:text-2xl text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
+                    className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-sm text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
                   >
                     <option value='' disabled className='bg-slate-900 text-white'>Select your industry / primary service...</option>
@@ -485,7 +485,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                       value={otherService}
                       onChange={(e) => setOtherService(e.target.value)}
                       placeholder='Please specify your industry/service...'
-                      className='w-full bg-slate-900/50 border border-slate-700 rounded-[7px] px-4 py-3 mt-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                      className='w-full bg-slate-900/50 border border-slate-700 rounded-[7px] px-4 py-3 mt-3 text-sm text-white placeholder:text-white/40 font-medium focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
                     />
                   )}
                 </>
@@ -599,7 +599,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
               )}
               <div className='mb-12'>
                 <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.5em] block mb-2'>Audit Report</span>
-                <h4 className='text-white font-black uppercase tracking-tighter text-xl truncate'>{formData.brandName}</h4>
+                <h4 className='text-white font-black uppercase tracking-tighter text-xl truncate' title={formData.brandName}>{formData.brandName}</h4>
               </div>
 
               <div className='flex-1 space-y-2'>
@@ -732,7 +732,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                           <h3 className='text-base sm:text-lg md:text-xl lg:text-2xl font-black text-white uppercase tracking-tight leading-tight break-words'>{formData.brandName}</h3>
                           <div className='flex items-center gap-2'>
                             <span className='w-1.5 h-1.5 rounded-full bg-lime-400 shrink-0'></span>
-                            <p className='text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate'>{formData.industry}</p>
+                            <p className='text-[10px] text-slate-400 font-bold uppercase tracking-widest truncate' title={formData.industry}>{formData.industry}</p>
                           </div>
                         </div>
                         <div className='space-y-2 md:space-y-4 min-w-0'>
@@ -806,8 +806,8 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                                 {i + 1}
                               </div>
                               <div className='flex-1 min-w-0'>
-                                <span className='text-[10px] text-white font-black uppercase truncate block mb-1'>{source.title}</span>
-                                <span className='text-[8px] text-slate-500 font-bold truncate block tracking-widest'>{source.uri}</span>
+                                <span className='text-[10px] text-white font-black uppercase truncate block mb-1' title={source.title}>{source.title}</span>
+                                <span className='text-[8px] text-slate-500 font-bold truncate block tracking-widest' title={source.uri}>{source.uri}</span>
                               </div>
                             </a>
                           ))
@@ -970,7 +970,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                           className='p-10 bg-white/[0.02] border border-white/5 rounded-[12px] flex flex-col gap-6 relative group hover:border-white/10 transition-all backdrop-blur-sm'
                         >
                           <div className='flex justify-between items-center gap-6'>
-                            <h4 className='text-2xl font-black text-white uppercase tracking-tighter truncate'>{platform.platform}</h4>
+                            <h4 className='text-2xl font-black text-white uppercase tracking-tighter truncate' title={platform.platform}>{platform.platform}</h4>
                             <div className='flex flex-col items-end shrink-0'>
                               <span
                                 className={`px-2 py-0.5 text-[8px] font-black uppercase rounded-[4px] mb-1 ${platform.presence === 'High' ? 'bg-lime-400 text-black' : platform.presence === 'Medium' ? 'bg-white/10 text-white' : 'bg-slate-800 text-slate-500'}`}
@@ -983,6 +983,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                             <span className='text-[10px] text-slate-500 font-black uppercase tracking-widest shrink-0'>Analysis:</span>
                             <span
                               className={`text-[11px] font-black uppercase truncate ${platform.sentiment.toLowerCase().includes('positive') ? 'text-emerald-400' : platform.sentiment.toLowerCase().includes('negative') ? 'text-red-400' : 'text-white'}`}
+                              title={platform.sentiment}
                             >
                               {platform.sentiment}
                             </span>
