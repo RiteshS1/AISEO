@@ -205,6 +205,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
   const [activePage, setActivePage] = useState<ReportPage>('COVER')
   const [formStep, setFormStep] = useState(0)
   const [formData, setFormData] = useState<AuditInputs>(formDataInitial)
+  const [otherService, setOtherService] = useState('')
   const [userEmail, setUserEmail] = useState('')
   const [fullName, setFullName] = useState(prefillContactName ?? '')
   const [result, setResult] = useState<AuditResult | null>(initialData?.result ?? null)
@@ -261,8 +262,9 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
       websiteUrl: 'www.luminasolar.example',
       keywords: 'solar installation, renewable panels',
       location: 'Maryland, USA',
-      serviceCategories: 'Residential Solar, Battery Backup',
+      serviceCategories: 'Home Services & Trades',
     })
+    setOtherService('')
     setResult(MOCK_DEMO_RESULT)
     setStep('COMPLETE')
     setActivePage('COVER')
@@ -304,11 +306,16 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
     if (step !== 'SCANNING' || result || analysisStartedRef.current) return
     analysisStartedRef.current = true
     const runAnalysis = async () => {
+      const resolvedServiceCategories =
+        formData.serviceCategories === 'Other'
+          ? (otherService.trim() || 'Other')
+          : formData.serviceCategories
+      const payload = { ...formData, serviceCategories: resolvedServiceCategories }
       try {
         const res = await fetch('/api/audit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         })
         const json = await res.json()
         if (!res.ok) {
@@ -326,7 +333,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
       }
     }
     runAnalysis()
-  }, [step, result, formData])
+  }, [step, result, formData, otherService])
 
   // Logic for progress bar animation
   useEffect(() => {
@@ -450,22 +457,38 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
               <h2 className='text-2xl md:text-3xl font-black mb-1 uppercase tracking-tighter text-white'>{AUDIT_FORM_QUESTIONS[formStep].label}</h2>
               <p className='text-[10px] text-slate-500 mb-8 md:mb-10 font-bold uppercase tracking-widest'>{AUDIT_FORM_QUESTIONS[formStep].desc}</p>
               {AUDIT_FORM_QUESTIONS[formStep].name === 'serviceCategories' ? (
-                <select
-                  name='serviceCategories'
-                  value={formData.serviceCategories}
-                  onChange={handleChange}
-                  onKeyDown={handleKeyDown}
-                  className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-lg sm:text-xl md:text-2xl text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
-                >
-                  <option value='' disabled className='bg-slate-900 text-white'>Select primary service...</option>
-                  <option value='AI Engine Optimization (AIEO)' className='bg-slate-900 text-white'>AI Engine Optimization (AIEO)</option>
-                  <option value='Traditional SEO' className='bg-slate-900 text-white'>Traditional SEO</option>
-                  <option value='Content & Semantic Strategy' className='bg-slate-900 text-white'>Content & Semantic Strategy</option>
-                  <option value='Technical SEO & Schema' className='bg-slate-900 text-white'>Technical SEO & Schema</option>
-                  <option value='Full-Service AI & Web' className='bg-slate-900 text-white'>Full-Service AI & Web</option>
-                  <option value='Other' className='bg-slate-900 text-white'>Other</option>
-                </select>
+                <>
+                  <select
+                    name='serviceCategories'
+                    value={formData.serviceCategories}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    className='w-full bg-slate-900/50 border border-slate-700 py-4 px-4 text-lg sm:text-xl md:text-2xl text-white font-bold tracking-tight rounded-[7px] focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400 appearance-none cursor-pointer'
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.75rem center', backgroundSize: '1.25rem', paddingRight: '2.5rem' }}
+                  >
+                    <option value='' disabled className='bg-slate-900 text-white'>Select your industry / primary service...</option>
+                    <option value='Software & Technology (SaaS)' className='bg-slate-900 text-white'>Software & Technology (SaaS)</option>
+                    <option value='E-commerce & Retail' className='bg-slate-900 text-white'>E-commerce & Retail</option>
+                    <option value='Healthcare & Wellness' className='bg-slate-900 text-white'>Healthcare & Wellness</option>
+                    <option value='Financial Services' className='bg-slate-900 text-white'>Financial Services</option>
+                    <option value='Real Estate & Construction' className='bg-slate-900 text-white'>Real Estate & Construction</option>
+                    <option value='Professional Services (Legal, Consulting)' className='bg-slate-900 text-white'>Professional Services (Legal, Consulting)</option>
+                    <option value='Education & E-Learning' className='bg-slate-900 text-white'>Education & E-Learning</option>
+                    <option value='Travel & Hospitality' className='bg-slate-900 text-white'>Travel & Hospitality</option>
+                    <option value='Home Services & Trades' className='bg-slate-900 text-white'>Home Services & Trades</option>
+                    <option value='Manufacturing & Logistics' className='bg-slate-900 text-white'>Manufacturing & Logistics</option>
+                    <option value='Other' className='bg-slate-900 text-white'>Other</option>
+                  </select>
+                  {formData.serviceCategories === 'Other' && (
+                    <input
+                      type='text'
+                      value={otherService}
+                      onChange={(e) => setOtherService(e.target.value)}
+                      placeholder='Please specify your industry/service...'
+                      className='w-full bg-slate-900/50 border border-slate-700 rounded-[7px] px-4 py-3 mt-3 text-white placeholder:text-white/40 font-medium text-sm focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                    />
+                  )}
+                </>
               ) : (
                 <input
                   ref={inputRef}
