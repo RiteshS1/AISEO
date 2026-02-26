@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     const overallScore =
       (report.result as { overallScore?: number })?.overallScore ?? 0;
 
-    await updateReportPending(reportId, email);
+    await updateReportPending(reportId, email, contactName);
 
     const host = request.headers.get('host');
     if (!host) {

@@ -67,7 +67,7 @@ const MOCK_DEMO_RESULT: AuditResult = {
     score: 45,
     status: 'Average',
     summary:
-      'Lumina Solar has strong traditional SEO foundations, but lacks the specific data structures (schema, FAQ blocks) required for AI Answer Engine extraction. AI visibility is currently limited to search-based crawling rather than proactive entity synthesis. To remain competitive in the coming year, a transition toward structured entity data and knowledge graph participation is essential.',
+      'Red Bull has strong traditional SEO and a recognizable global brand, but AI Answer Engines still lack the structured data (schema, FAQ blocks) needed to surface its energy drinks and events reliably. AI visibility is currently driven more by search and existing brand mentions than by proactive entity and product data. To stay ahead in the beverage and sports-content space, investing in structured product and event data and knowledge graph presence is essential.',
     entityConfidence: 62,
     napConsistency: '92% - Mostly consistent across the web.',
     schemaValidation: 'Valid schema found, but missing specific service details.',
@@ -158,7 +158,7 @@ const MOCK_DEMO_RESULT: AuditResult = {
     trustSignals: ['G2 Rating', 'BBB Accredited'],
   },
   traditionalRankings: [],
-  competitors: [{ name: 'Top Industry Rival', visibilityScore: 88, primaryStrength: 'High Search Volume', threatLevel: 'High' }],
+  competitors: [{ name: 'Monster Energy', visibilityScore: 88, primaryStrength: 'High search and AI visibility in energy drink category', threatLevel: 'High' }],
   globalRecommendations: [
     { title: 'Implement FAQ Blocks', action: 'Convert service FAQs into structured data blocks for Answer Engines.', priority: 'High', timeline: '1 Week' },
     { title: 'Strengthen Entity Graph', action: 'Link executive profiles and proprietary frameworks to the main brand entity.', priority: 'High', timeline: '3 Weeks' },
@@ -168,12 +168,12 @@ const MOCK_DEMO_RESULT: AuditResult = {
 }
 
 const DEMO_INPUTS: AuditInputs = {
-  brandName: 'Lumina Solar',
-  industry: 'Renewable Energy',
-  websiteUrl: 'www.luminasolar.example',
-  keywords: 'solar installation, renewable panels',
-  location: 'Maryland, USA',
-  serviceCategories: 'Residential Solar, Battery Backup',
+  brandName: 'Red Bull',
+  industry: 'Food & Beverage',
+  websiteUrl: 'www.redbull.com',
+  keywords: 'energy drink, Red Bull, wings, sports events',
+  location: 'Austria',
+  serviceCategories: 'Food & Beverage',
 }
 
 export const DEMO_INITIAL_DATA: AuditToolInitialData = {
@@ -257,12 +257,12 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
 
   const handleLoadDemo = () => {
     setFormData({
-      brandName: 'Lumina Solar',
-      industry: 'Renewable Energy',
-      websiteUrl: 'www.luminasolar.example',
-      keywords: 'solar installation, renewable panels',
-      location: 'Maryland, USA',
-      serviceCategories: 'Home Services & Trades',
+      brandName: 'Red Bull',
+      industry: 'Food & Beverage',
+      websiteUrl: 'www.redbull.com',
+      keywords: 'energy drink, Red Bull, wings, sports events',
+      location: 'Austria',
+      serviceCategories: 'Food & Beverage',
     })
     setOtherService('')
     setResult(MOCK_DEMO_RESULT)
