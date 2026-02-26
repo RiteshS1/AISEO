@@ -47,6 +47,8 @@ export async function POST(request: Request) {
     const reportUrl =
       host ? `${protocol}://${host}/report/${reportId}` : undefined;
 
+    const overallScore = (report.result as { overallScore?: number })?.overallScore;
+
     addSubscriber({
       email: report.email,
       brandName: inputs.brandName ?? '',
@@ -54,6 +56,8 @@ export async function POST(request: Request) {
       websiteUrl: inputs.websiteUrl ?? '',
       keywords: inputs.keywords ?? '',
       reportUrl,
+      ...(report.contact_name ? { name: report.contact_name } : {}),
+      ...(overallScore != null ? { ai_score: overallScore } : {}),
     }).catch((err) => console.error('MailerLite sync failed:', err));
 
     await setReportApproved(reportId);

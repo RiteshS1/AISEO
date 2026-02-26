@@ -12,6 +12,10 @@ export interface MailerLitePayload {
   websiteUrl: string;
   keywords: string;
   reportUrl?: string;
+  /** Subscriber name for MailerLite default field `name` ({$name} in templates). */
+  name?: string;
+  /** Overall AI visibility score (0–100); sent to MailerLite custom field `ai_score` for follow-up emails. */
+  ai_score?: number | string;
 }
 
 export async function addSubscriber(data: MailerLitePayload): Promise<boolean> {
@@ -38,6 +42,8 @@ export async function addSubscriber(data: MailerLitePayload): Promise<boolean> {
           website: truncate(data.websiteUrl, 255),
           keywords: truncate(data.keywords, 255),
           assessment: truncate(data.reportUrl, 1024),
+          ...(data.name ? { name: truncate(data.name, 255) } : {}),
+          ...(data.ai_score != null ? { ai_score: String(data.ai_score) } : {}),
         },
         status: 'active',
         ...(groupId ? { groups: [String(groupId)] } : {}),

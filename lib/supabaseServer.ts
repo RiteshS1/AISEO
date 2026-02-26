@@ -71,6 +71,7 @@ export type ReportWithMeta = {
   result: unknown;
   email: string | null;
   status: string | null;
+  contact_name: string | null;
 };
 
 export async function getReportWithMeta(
@@ -79,7 +80,7 @@ export async function getReportWithMeta(
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('reports')
-    .select('inputs, result, email, status')
+    .select('inputs, result, email, status, contact_name')
     .eq('report_id', reportId)
     .single();
   if (error || !data) return null;
@@ -88,12 +89,14 @@ export async function getReportWithMeta(
     result: data.result,
     email: data.email ?? null,
     status: data.status ?? null,
+    contact_name: data.contact_name ?? null,
   };
 }
 
 export async function updateReportPending(
   reportId: string,
-  email: string
+  email: string,
+  contactName?: string
 ): Promise<void> {
   const supabase = getSupabase();
   const { data: existing } = await supabase
@@ -109,7 +112,11 @@ export async function updateReportPending(
   }
   const { error } = await supabase
     .from('reports')
-    .update({ email, status: 'pending' })
+    .update({
+      email,
+      status: 'pending',
+      contact_name: contactName ?? null,
+    })
     .eq('report_id', reportId);
   if (error) {
     throw new Error(`Supabase update failed: ${error.message}`);
