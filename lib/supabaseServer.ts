@@ -91,6 +91,8 @@ export async function getReport(
 }
 
 export type ReportWithMeta = {
+  report_id: string;
+  created_at: string;
   inputs: unknown;
   result: unknown;
   email: string | null;
@@ -106,11 +108,13 @@ export async function getReportWithMeta(
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('reports')
-    .select('inputs, result, email, report_status, contact_name, user_id, admin_notes')
+    .select('report_id, created_at, inputs, result, email, report_status, contact_name, user_id, admin_notes')
     .eq('report_id', reportId)
     .single();
   if (error || !data) return null;
   return {
+    report_id: data.report_id,
+    created_at: data.created_at,
     inputs: data.inputs,
     result: data.result,
     email: data.email ?? null,

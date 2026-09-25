@@ -26,10 +26,15 @@ export async function GET(
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
     return NextResponse.json({
+      reportId: report.report_id,
+      createdAt: report.created_at,
       inputs: report.inputs,
       result: report.result,
       reportStatus: report.report_status,
+      contactName: report.contact_name,
       email: report.email,
+      userId: report.user_id,
+      adminNotes: report.admin_notes,
     });
   }
   const report = await getReport(reportId);

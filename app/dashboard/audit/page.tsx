@@ -27,7 +27,11 @@ export default async function DashboardAuditPage() {
         }}
       />
       <div className="relative z-10 max-w-5xl mx-auto">
-        <AuditPageClient allowed={allowed} prefillContactName={prefillContactName} />
+        <AuditPageClient
+          allowed={allowed}
+          prefillContactName={prefillContactName}
+          prefillContactEmail={user.email ?? ''}
+        />
       </div>
     </div>
   );

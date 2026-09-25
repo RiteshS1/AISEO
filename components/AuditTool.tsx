@@ -190,9 +190,11 @@ interface AuditToolProps {
   isPublicReportPage?: boolean
   /** Prefill for Gate step when user is authenticated (e.g. from dashboard). */
   prefillContactName?: string
+  /** Authenticated email; when present, the gate does not ask the user to re-enter it. */
+  prefillContactEmail?: string
 }
 
-const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView, isPublicReportPage, prefillContactName }) => {
+const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isPublicDemo, isAdminView, isPublicReportPage, prefillContactName, prefillContactEmail }) => {
   const formDataInitial: AuditInputs = initialData?.inputs ?? {
     brandName: '',
     industry: '',
@@ -206,7 +208,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
   const [formStep, setFormStep] = useState(0)
   const [formData, setFormData] = useState<AuditInputs>(formDataInitial)
   const [otherService, setOtherService] = useState('')
-  const [userEmail, setUserEmail] = useState('')
+  const [userEmail, setUserEmail] = useState(prefillContactEmail ?? '')
   const [fullName, setFullName] = useState(prefillContactName ?? '')
   const [result, setResult] = useState<AuditResult | null>(initialData?.result ?? null)
   const [reportId, setReportId] = useState<string | null>(null)
@@ -216,6 +218,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
   const [gateSubmitting, setGateSubmitting] = useState(false)
   const [auditSubmitting, setAuditSubmitting] = useState(false)
   const [demoResolved, setDemoResolved] = useState(!isPublicDemo)
+  const [reportLoading, setReportLoading] = useState(Boolean(initialReportId && !initialData))
 
   const inputRef = useRef<HTMLInputElement>(null)
   const reportRef = useRef<HTMLDivElement>(null)
@@ -258,9 +261,11 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         setStep('COMPLETE')
         setActivePage('COVER')
       } catch (e) {
-        if ((e as Error).name !== 'AbortController') {
+        if ((e as Error).name !== 'AbortError') {
           setError('Report not found or could not be loaded.')
         }
+      } finally {
+        setReportLoading(false)
       }
     })()
     return () => controller.abort()
@@ -440,6 +445,15 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
           { subject: 'Trust', A: 0, fullMark: 100 },
         ]
 
+
+  if (reportLoading) {
+    return (
+      <div className="min-h-[600px] flex flex-col items-center justify-center p-12 text-center">
+        <div className="w-12 h-12 border-2 border-lime-400/20 border-t-lime-400 animate-spin rounded-full mb-6" />
+        <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.3em]">Loading report</p>
+      </div>
+    )
+  }
   const isRestricted = (page: ReportPage) =>
     isAdminView ? false : page !== 'COVER' && page !== 'SUMMARY'
 
@@ -553,22 +567,31 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
               <h3 className='text-lg sm:text-xl font-black uppercase tracking-tight mb-2 text-white'>Submit for review</h3>
               <p className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-8 md:mb-12'>You will see the full report once it passes quality verification.</p>
               <form onSubmit={handleSignup} className='space-y-6'>
-                <input
-                  type='text'
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder='Full Name'
-                  className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
-                  required
-                />
-                <input
-                  type='email'
-                  value={userEmail}
-                  onChange={(e) => setUserEmail(e.target.value)}
-                  placeholder='you@company.com'
-                  className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
-                  required
-                />
+                {prefillContactEmail ? (
+                  <div className='p-5 bg-black/40 border border-white/10 rounded-[7px]'>
+                    <p className='text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-2'>Signed-in contact</p>
+                    <p className='text-white text-sm font-bold'>{fullName} · {prefillContactEmail}</p>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      type='text'
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      placeholder='Full Name'
+                      className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                      required
+                    />
+                    <input
+                      type='email'
+                      value={userEmail}
+                      onChange={(e) => setUserEmail(e.target.value)}
+                      placeholder='you@company.com'
+                      className='w-full bg-black/40 border border-white/10 px-8 py-6 text-white transition-all text-[11px] font-bold rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                      required
+                    />
+                  </>
+                )}
                 {error && <p className='text-red-500 text-[9px] font-black uppercase tracking-widest'>{error}</p>}
                 <button type='submit' disabled={gateSubmitting} className='w-full py-6 bg-lime-400 text-black font-black text-[11px] tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50'>
                   {gateSubmitting ? 'Submitting...' : 'Request review'}

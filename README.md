@@ -17,8 +17,8 @@ AI Visibility Audit: submit brand audits for human approval, generate them with 
 | `NEXT_PRIVATE_SERVICE_ROLE_API_KEY` | Yes | Supabase service role key; server-only. |
 | `DISCORD_WEBHOOK_URL` | Yes | Discord webhook for approval requests (brand, email, score, review link). |
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL | Used for Discord review and public report links. |
-| `GEMINI_MODEL` | No | Primary model (default: `gemini-2.5-flash`). |
-| `GEMINI_FALLBACK_MODEL` | No | Fallback on 429/503 (default: `gemini-1.5-flash`). |
+| `GROQ_MODEL` | No | Primary Groq model (default: `openai/gpt-oss-120b`). |
+| `GEMINI_MODEL` | No | Gemini backup model (default: `gemini-3.1-flash-lite`). |
 | `GROQ_MODEL` | No | Groq fallback model (default: `llama-3.3-70b-versatile`). |
 
 ## Commands
@@ -30,7 +30,7 @@ AI Visibility Audit: submit brand audits for human approval, generate them with 
 
 ## Flow
 
-Audit form → `POST /api/audit` (Zod) → draft saved to Supabase. User enters contact details → `POST /api/request-approval` sets `pending_approval` and sends a Discord review link. An authenticated admin opens `/admin/review/[reportId]`, approves generation, reviews the Gemini or Groq output, and publishes it. Reports move through `draft`, `pending_approval`, `generating`, `in_review`, `published`, or `rejected`. Only published reports are publicly readable.
+Audit form → `POST /api/audit` (Zod) → draft saved to Supabase. User confirms their authenticated contact details → `POST /api/request-approval` sets `pending_approval` and sends a Discord review link. An authenticated admin opens `/admin/review/[reportId]`, approves generation, reviews the Groq or Gemini output, and publishes it. Reports move through `draft`, `pending_approval`, `generating`, `in_review`, `published`, or `rejected`. Only published reports are publicly readable.
 
 ## Code structure
 

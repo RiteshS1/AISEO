@@ -7,9 +7,15 @@ import type { AuditInputs } from '@/lib/schemas/auditInputs';
 import type { AuditResult } from '@/types';
 
 type ReportMeta = {
+  reportId: string;
+  createdAt: string;
   inputs: unknown;
   result: unknown;
   reportStatus: string;
+  contactName: string | null;
+  email: string | null;
+  userId: string | null;
+  adminNotes: string | null;
 };
 
 export default function AdminReviewClient({ reportId }: { reportId: string }) {
@@ -60,12 +66,40 @@ export default function AdminReviewClient({ reportId }: { reportId: string }) {
   const canGenerate = data.reportStatus === 'pending_approval';
   const canPublish = data.reportStatus === 'in_review';
   const canReject = canGenerate || canPublish;
+  const inputs = data.inputs as { brandName?: string; industry?: string; websiteUrl?: string };
 
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30">
       <section className={`pt-20 px-6 ${canGenerate || canPublish ? 'pb-28' : 'pb-20'}`}>
         <div className="max-w-5xl mx-auto">
           {error && <p className="mb-6 text-red-400 text-sm">{error}</p>}
+          <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 p-5 bg-slate-900/60 border border-white/10 rounded-[7px]">
+            <div>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Requester</p>
+              <p className="text-white text-sm font-bold mt-1">{data.contactName ?? 'Unknown'}</p>
+              <p className="text-slate-400 text-xs mt-1 break-all">{data.email ?? 'No email'}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Business</p>
+              <p className="text-white text-sm font-bold mt-1">{inputs.brandName ?? 'Unknown brand'}</p>
+              <p className="text-slate-400 text-xs mt-1">{inputs.industry ?? 'Unknown industry'}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Website</p>
+              <p className="text-white text-sm font-bold mt-1 break-all">{inputs.websiteUrl ?? 'Not provided'}</p>
+              <p className="text-slate-400 text-xs mt-1">{new Date(data.createdAt).toLocaleString()}</p>
+            </div>
+            <div>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">Status / ID</p>
+              <p className="text-lime-400 text-sm font-bold mt-1">{data.reportStatus}</p>
+              <p className="text-slate-400 text-xs mt-1 break-all">{data.reportId}</p>
+            </div>
+            {data.adminNotes && (
+              <p className="sm:col-span-2 lg:col-span-4 text-amber-300 text-xs border-t border-white/10 pt-4">
+                Previous generation note: {data.adminNotes}
+              </p>
+            )}
+          </div>
           {initialData ? (
             <AuditTool initialData={initialData} isAdminView />
           ) : (

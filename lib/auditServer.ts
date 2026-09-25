@@ -32,9 +32,8 @@ function extractJson(text: string): unknown {
   throw new Error('The report data is formatted incorrectly. Please try again.');
 }
 
-const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite';
-const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash';
 const GROQ_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
+const GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite';
 
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 2000;
@@ -42,11 +41,6 @@ const INITIAL_BACKOFF_MS = 2000;
 function isRateLimitError(e: unknown): boolean {
   const msg = String(e instanceof Error ? e.message : e);
   return msg.includes('429') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('exhausted') || msg.includes('rate limit');
-}
-
-function shouldFallbackToSecondary(e: unknown): boolean {
-  const msg = String(e instanceof Error ? e.message : e);
-  return msg.includes('429') || msg.includes('503') || msg.includes('RESOURCE_EXHAUSTED') || msg.includes('SERVICE_UNAVAILABLE') || msg.includes('rate limit');
 }
 
 function sleep(ms: number): Promise<void> {
@@ -253,23 +247,14 @@ CRITICAL INSTRUCTION: You MUST return a raw JSON object. Do not wrap it in markd
 export async function runAudit(inputs: AuditInputs): Promise<AuditResult> {
   const errors: string[] = [];
   try {
-    return await runAuditWithModel(inputs, PRIMARY_MODEL);
-  } catch (primaryError) {
-    errors.push(`Gemini ${PRIMARY_MODEL}: ${getErrorMessage(primaryError)}`);
-    if (shouldFallbackToSecondary(primaryError)) {
-      console.warn(`Primary model ${PRIMARY_MODEL} failed. Falling back to ${FALLBACK_MODEL}.`);
-      try {
-        return await runAuditWithModel(inputs, FALLBACK_MODEL);
-      } catch (secondaryError) {
-        errors.push(`Gemini ${FALLBACK_MODEL}: ${getErrorMessage(secondaryError)}`);
-      }
-    }
-
-    console.warn(`Gemini providers failed. Falling back to Groq ${GROQ_MODEL}.`);
+    return await runAuditWithModel(inputs, GROQ_MODEL, 'groq');
+  } catch (groqError) {
+    errors.push(`Groq ${GROQ_MODEL}: ${getErrorMessage(groqError)}`);
+    console.warn(`Groq ${GROQ_MODEL} failed. Falling back to Gemini ${GEMINI_MODEL}.`);
     try {
-      return await runAuditWithModel(inputs, GROQ_MODEL, 'groq');
-    } catch (groqError) {
-      errors.push(`Groq ${GROQ_MODEL}: ${getErrorMessage(groqError)}`);
+      return await runAuditWithModel(inputs, GEMINI_MODEL);
+    } catch (geminiError) {
+      errors.push(`Gemini ${GEMINI_MODEL}: ${getErrorMessage(geminiError)}`);
       throw new Error(`All AI providers failed. ${errors.join(' | ')}`);
     }
   }

@@ -5,8 +5,8 @@ import { getReport, updateReportPending } from '@/lib/supabaseServer';
 import { sendApprovalRequest } from '@/lib/discordServer';
 
 const bodySchema = z.object({
-  contactName: z.string().min(1, 'Full name is required'),
-  email: z.string().email(),
+  contactName: z.string().min(1).optional(),
+  email: z.string().email().optional(),
   brandName: z.string(),
   industry: z.string(),
   websiteUrl: z.string(),
@@ -30,7 +30,10 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { reportId, email, brandName, industry, websiteUrl, contactName } = parsed.data;
+    const { reportId, brandName, industry, websiteUrl, contactName } = parsed.data;
+    const email = user.email ?? parsed.data.email;
+    if (!email) return NextResponse.json({ error: 'Authenticated email is required' }, { status: 400 });
+    const resolvedContactName = contactName?.trim() || (user.user_metadata?.full_name as string | undefined) || user.email?.split('@')[0] || 'User';
 
     const report = await getReport(reportId);
     if (!report) {
@@ -40,14 +43,14 @@ export async function POST(request: Request) {
       );
     }
 
-    await updateReportPending(reportId, email, contactName, user.id);
+    await updateReportPending(reportId, email, resolvedContactName, user.id);
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
     if (!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL is missing');
     const reviewUrl = `${siteUrl.replace(/\/$/, '')}/admin/review/${reportId}`;
 
     await sendApprovalRequest({
-      contactName,
+      contactName: resolvedContactName,
       brandName,
       email,
       industry,
