@@ -34,6 +34,7 @@ function extractJson(text: string): unknown {
 
 const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.1-flash-lite';
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash';
+const GROQ_MODEL = process.env.GROQ_MODEL ?? 'openai/gpt-oss-120b';
 
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 2000;
@@ -52,12 +53,11 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function runAuditWithModel(inputs: AuditInputs, modelName: string): Promise<AuditResult> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    throw new Error('GEMINI_API_KEY is not configured.');
-  }
-
+async function runAuditWithModel(
+  inputs: AuditInputs,
+  modelName: string,
+  provider: 'gemini' | 'groq' = 'gemini'
+): Promise<AuditResult> {
   const { brandName, industry, websiteUrl, keywords, location, serviceCategories } = inputs;
   const prompt = `Perform a high-precision digital visibility and AIEO (Artificial Intelligence Engine Optimization) audit for "${brandName}". 
     
@@ -171,6 +171,51 @@ CRITICAL INSTRUCTION: You MUST return a raw JSON object. Do not wrap it in markd
   ]
 }`;
 
+  if (provider === 'groq') {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      throw new Error('GROQ_API_KEY is not configured.');
+    }
+
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: modelName,
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are an expert AI SEO auditor. Return only valid JSON matching the requested schema. Do not include markdown or commentary.',
+          },
+          { role: 'user', content: prompt },
+        ],
+        response_format: { type: 'json_object' },
+        temperature: 0.2,
+      }),
+      signal: AbortSignal.timeout(30000),
+    });
+
+    if (!response.ok) {
+      const errorText = (await response.text()).slice(0, 1000);
+      throw new Error(`Groq API error (${response.status}): ${errorText}`);
+    }
+
+    const responseData = (await response.json()) as {
+      choices?: Array<{ message?: { content?: string | null } }>;
+    };
+    const text = responseData.choices?.[0]?.message?.content ?? '';
+    return parseAuditResult(extractJson(text), []);
+  }
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY is not configured.');
+  }
+
   const ai = new GoogleGenAI({ apiKey });
   const requestConfig = {
     model: modelName,
@@ -206,13 +251,30 @@ CRITICAL INSTRUCTION: You MUST return a raw JSON object. Do not wrap it in markd
 }
 
 export async function runAudit(inputs: AuditInputs): Promise<AuditResult> {
+  const errors: string[] = [];
   try {
     return await runAuditWithModel(inputs, PRIMARY_MODEL);
   } catch (primaryError) {
+    errors.push(`Gemini ${PRIMARY_MODEL}: ${getErrorMessage(primaryError)}`);
     if (shouldFallbackToSecondary(primaryError)) {
       console.warn(`Primary model ${PRIMARY_MODEL} failed. Falling back to ${FALLBACK_MODEL}.`);
-      return await runAuditWithModel(inputs, FALLBACK_MODEL);
+      try {
+        return await runAuditWithModel(inputs, FALLBACK_MODEL);
+      } catch (secondaryError) {
+        errors.push(`Gemini ${FALLBACK_MODEL}: ${getErrorMessage(secondaryError)}`);
+      }
     }
-    throw primaryError;
+
+    console.warn(`Gemini providers failed. Falling back to Groq ${GROQ_MODEL}.`);
+    try {
+      return await runAuditWithModel(inputs, GROQ_MODEL, 'groq');
+    } catch (groqError) {
+      errors.push(`Groq ${GROQ_MODEL}: ${getErrorMessage(groqError)}`);
+      throw new Error(`All AI providers failed. ${errors.join(' | ')}`);
+    }
   }
+}
+
+function getErrorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
