@@ -31,7 +31,7 @@ const config: Config = {
       fontSize: {
         '10xl': ['9rem', { lineHeight: '1' }],
         '11xl': ['11rem', { lineHeight: '1' }],
-        xxs: '0.625rem', // 10px for the "by GetNifty" tag
+        xxs: '0.625rem', // 10px brand label
       },
       // CRITICAL: Restore the exact shadow for the Audit Box
       boxShadow: {

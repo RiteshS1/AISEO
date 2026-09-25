@@ -241,6 +241,17 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         const res = await fetch(`/api/report/${initialReportId}`, { signal: controller.signal })
         const json = await res.json()
         if (!res.ok) throw new Error(json.error ?? 'Report not found')
+        if (json.reportStatus !== 'published' || !json.inputs || !json.result) {
+          setReportId(initialReportId)
+          setPendingReviewMessage(true)
+          setStep('COMPLETE')
+          setError(
+            json.reportStatus === 'rejected'
+              ? 'This report request was rejected.'
+              : 'This report is still moving through review.'
+          )
+          return
+        }
         setFormData(json.inputs)
         setResult(json.result)
         setReportId(initialReportId)
@@ -321,8 +332,9 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         if (!res.ok) {
           throw new Error(json.error ?? 'Audit failed')
         }
-        setResult(json.result)
         if (json.reportId) setReportId(json.reportId)
+        setAuditSubmitting(false)
+        setStep('GATE')
       } catch (e) {
         console.error('Analysis failed', e)
         setAuditSubmitting(false)
@@ -508,7 +520,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                   disabled={auditSubmitting}
                   className='px-10 py-5 bg-lime-400 text-black font-black uppercase text-xs tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50'
                 >
-                  {auditSubmitting ? 'Processing...' : formStep === AUDIT_FORM_QUESTIONS.length - 1 ? 'Analyze Brand' : 'Next'}
+                  {auditSubmitting ? 'Saving...' : formStep === AUDIT_FORM_QUESTIONS.length - 1 ? 'Continue' : 'Next'}
                 </button>
                 <button
                   onClick={handleLoadDemo}
@@ -528,18 +540,18 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
         {!(isPublicDemo && !demoResolved) && step === 'GATE' && (
           <div className='grid md:grid-cols-2 animate-in fade-in slide-in-from-bottom-6 duration-1000 relative z-10 min-h-[600px]'>
             <div className='p-6 sm:p-10 md:p-20 border-r border-white/5 bg-slate-900/10'>
-              <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.4em] block mb-10'>Analysis Complete</span>
+              <span className='text-lime-400 text-[9px] font-black uppercase tracking-[0.4em] block mb-10'>Request saved</span>
               <h2 className='text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-6 md:mb-8 uppercase tracking-tighter text-white leading-[0.85]'>
-                Results <br />
-                Ready.
+                Review <br />
+                requested.
               </h2>
               <p className='text-slate-500 text-xs font-bold uppercase tracking-widest leading-relaxed max-w-sm'>
-                The visibility report for <span className='text-white font-black'>{formData.brandName}</span> is now available for review.
+                Your request for <span className='text-white font-black'>{formData.brandName}</span> is saved. Confirm your details to send it for human review.
               </p>
             </div>
             <div className='p-6 sm:p-10 md:p-20 flex flex-col justify-center bg-white/[0.01]'>
-              <h3 className='text-lg sm:text-xl font-black uppercase tracking-tight mb-2 text-white'>Open the Findings</h3>
-              <p className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-8 md:mb-12'>Confirm your details to see the full analysis.</p>
+              <h3 className='text-lg sm:text-xl font-black uppercase tracking-tight mb-2 text-white'>Submit for review</h3>
+              <p className='text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-8 md:mb-12'>You will see the full report once it passes quality verification.</p>
               <form onSubmit={handleSignup} className='space-y-6'>
                 <input
                   type='text'
@@ -559,7 +571,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                 />
                 {error && <p className='text-red-500 text-[9px] font-black uppercase tracking-widest'>{error}</p>}
                 <button type='submit' disabled={gateSubmitting} className='w-full py-6 bg-lime-400 text-black font-black text-[11px] tracking-widest hover:bg-white transition-all rounded-[7px] disabled:opacity-50'>
-                  {gateSubmitting ? 'Processing...' : 'Access Report'}
+                  {gateSubmitting ? 'Submitting...' : 'Request review'}
                 </button>
               </form>
             </div>
@@ -570,6 +582,17 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
           <div className='flex flex-col items-center justify-center p-8 sm:p-12 md:p-20 text-center relative z-10 min-h-[600px]'>
             <div className='w-20 h-20 border-4 border-lime-400/5 border-t-lime-400 animate-spin rounded-full mb-12'></div>
             <h3 className='text-2xl md:text-3xl font-black uppercase tracking-tighter text-white mb-4'>Finalizing Analysis</h3>
+          </div>
+        )}
+
+        {!(isPublicDemo && !demoResolved) && step === 'COMPLETE' && !result && pendingReviewMessage && (
+          <div className='flex flex-col items-center justify-center p-8 sm:p-12 md:p-20 text-center relative z-10 min-h-[600px]'>
+            <div className='w-16 h-16 border border-lime-400/40 bg-lime-400/10 flex items-center justify-center rounded-full mb-8'>
+              <span className='text-lime-400 text-2xl'>✓</span>
+            </div>
+            <p className='text-lime-400 text-[9px] font-black uppercase tracking-[0.4em] mb-5'>Awaiting admin review</p>
+            <h3 className='text-2xl md:text-4xl font-black uppercase tracking-tighter text-white mb-4'>Your request is in the queue</h3>
+            <p className='max-w-md text-slate-500 text-xs font-bold uppercase tracking-widest leading-relaxed'>The AI engine will run after approval. Your dashboard will show each stage and unlock the report when it is published.</p>
           </div>
         )}
 
@@ -636,7 +659,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
               )}
 
               <div className='mt-auto pt-10 border-t border-white/5 text-center'>
-                <p className='text-[8px] text-slate-600 font-black uppercase tracking-[0.2em]'>© 2025 GetNifty AIEO Analytics</p>
+                <p className='text-[8px] text-slate-600 font-black uppercase tracking-[0.2em]'>AISEO by Ritesh Sharma</p>
               </div>
             </div>
 
@@ -741,7 +764,7 @@ const AuditTool: React.FC<AuditToolProps> = ({ initialData, initialReportId, isP
                             {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
                           </h3>
                           <div className='flex items-center gap-2'>
-                            <span className='text-[10px] text-lime-400 font-black uppercase tracking-widest'>Powered by GetNifty</span>
+                            <span className='text-[10px] text-lime-400 font-black uppercase tracking-widest'>AISEO by Ritesh</span>
                           </div>
                         </div>
                       </div>

@@ -13,7 +13,7 @@ Use this doc to verify production pre-flight changes and to track SEO and AIEO r
 
 ### Phase 2: Metadata & social
 - [ ] **Root layout** – `metadataBase` set to production URL (e.g. `https://aiseo-n9lz.vercel.app`).
-- [ ] **Title** – “GetNifty AIEO | Dominate AI Search Visibility”.
+- [ ] **Title** – “AISEO by Ritesh | AI Search Visibility”.
 - [ ] **Description** – AIEO value prop + free audit.
 - [ ] **Keywords** – AIEO, AI Engine Optimization, ChatGPT visibility, Gemini ranking, LLM optimization, etc.
 - [ ] **openGraph** – title, description, url, siteName, type.
@@ -24,7 +24,7 @@ Use this doc to verify production pre-flight changes and to track SEO and AIEO r
 - [ ] **`/sitemap.xml`** (via `app/sitemap.ts`) – Public routes: `/`, `/register`, `/login`, `/privacy`, `/terms` with `lastModified` and priorities.
 
 ### Phase 4: Structured data (AIEO/SEO)
-- [ ] **JSON-LD in layout** – First script: `Organization` + `SoftwareApplication` (GetNifty, BusinessApplication, AIEO description).
+- [ ] **JSON-LD in layout** – First script: `Organization` + `SoftwareApplication` (AISEO by Ritesh, BusinessApplication, AIEO description).
 - [ ] **JSON-LD** – Second script: `FAQPage` with 5 Q&As unchanged.
 
 **Quick URL checks after deploy:**
@@ -42,7 +42,7 @@ Use these to measure and improve traditional search performance.
 | Metric | Tool / method | Frequency |
 |--------|----------------|-----------|
 | **Indexation** | Google Search Console → Coverage / Pages | Weekly |
-| **Target keyword rankings** | GSC (Performance) or Ahrefs/SEMrush for “AIEO”, “AI Engine Optimization”, “GetNifty AIEO”, “AI visibility audit” | Weekly / monthly |
+| **Target keyword rankings** | GSC (Performance) or Ahrefs/SEMrush for “AIEO”, “AI Engine Optimization”, “AISEO by Ritesh”, “AI visibility audit” | Weekly / monthly |
 | **Core Web Vitals** | Search Console → Experience, or PageSpeed Insights | Monthly |
 | **Clicks & impressions** | GSC → Performance | Weekly |
 | **Backlinks** | Ahrefs / Moz / GSC (Links) | Monthly |
@@ -50,7 +50,7 @@ Use these to measure and improve traditional search performance.
 
 **Suggested target keywords (examples):**
 - AIEO, AI Engine Optimization
-- GetNifty AIEO, AI visibility audit
+- AISEO by Ritesh, AI visibility audit
 - ChatGPT visibility, Gemini ranking, LLM optimization
 - AI SEO tools, answer engine optimization
 
@@ -62,10 +62,10 @@ Use these to measure how well the brand is understood and cited by AI engines (C
 
 | Benchmark | How to measure | Frequency |
 |-----------|-----------------|-----------|
-| **Brand mention in answers** | Ask ChatGPT / Perplexity / Gemini: “What is GetNifty?” or “Best AIEO tools?” and note if GetNifty is mentioned. | Monthly |
+| **Brand mention in answers** | Ask ChatGPT / Perplexity / Gemini: “What is AISEO by Ritesh?” or “Best AIEO tools?” and note whether the product is described correctly. | Monthly |
 | **Citation / link in answers** | When the brand is mentioned, check if the answer links to the site or cites it. | Monthly |
 | **Structured data visibility** | Use Google Rich Results Test or schema validators; ensure Organization + SoftwareApplication + FAQPage validate. | After changes, then quarterly |
-| **Entity / knowledge** | Search “GetNifty AIEO” in each engine; note whether the product and value prop are described correctly. | Monthly |
+| **Entity / knowledge** | Search “AISEO by Ritesh” in each engine; note whether the product and value prop are described correctly. | Monthly |
 | **Share / Discord preview** | Share homepage link in Discord/Slack/Twitter; confirm OG title, description, and image (if set) look correct. | After deploy |
 
 **Optional tools (if you adopt them):**

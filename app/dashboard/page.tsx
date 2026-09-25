@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import { getProfile, listReportsByUserId } from '@/lib/supabaseServer';
 import Link from 'next/link';
+import ReportStatusTracker from './ReportStatusTracker';
 
 const CALCOM_URL = 'https://cal.com/ritesh-sharma-hfn1t8/15min';
-const CONTACT_SALES_EMAIL = 'mailto:support@getnifty.in';
+const CONTACT_SALES_EMAIL = 'mailto:riteshsharma@example.com';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -97,7 +98,7 @@ export default async function DashboardPage() {
               </svg>
             </div>
             <h3 className="text-lg font-black uppercase tracking-tighter text-white mb-2">
-              Unlock GetNifty Pro
+              Explore AISEO Pro
             </h3>
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-6">
               Unlimited audits, competitor tracking, and dedicated semantic engineering.
@@ -136,21 +137,27 @@ export default async function DashboardPage() {
             <ul className="space-y-2">
               {reports.map((r) => {
                 const statusLabel =
-                  r.status === 'approved'
-                    ? 'Approved – report sent'
-                    : r.status === 'denied'
-                      ? 'Denied by admin – report not sent'
-                      : 'Pending review';
+                  r.report_status === 'published'
+                    ? 'Report ready'
+                    : r.report_status === 'rejected'
+                      ? 'Rejected by admin'
+                      : r.report_status === 'generating'
+                        ? 'AI engine analyzing'
+                        : r.report_status === 'in_review'
+                          ? 'Quality verification'
+                          : r.report_status === 'pending_approval'
+                            ? 'Awaiting admin review'
+                            : 'Draft';
                 const statusClass =
-                  r.status === 'approved'
+                  r.report_status === 'published'
                     ? 'text-lime-400'
-                    : r.status === 'denied'
+                    : r.report_status === 'rejected'
                       ? 'text-red-400'
                       : 'text-amber-400';
                 return (
                   <li key={r.report_id}>
                     <Link
-                      href={`/report/${r.report_id}`}
+                      href={r.report_status === 'published' ? `/report/${r.report_id}` : '/dashboard'}
                       className="block p-4 bg-slate-900/40 border border-white/10 rounded-[7px] hover:border-lime-400/30 transition-all"
                     >
                       <div className="flex flex-wrap items-center gap-2 mb-1">
@@ -164,6 +171,9 @@ export default async function DashboardPage() {
                       <p className={`text-[10px] font-bold uppercase tracking-widest ${statusClass}`}>
                         {statusLabel}
                       </p>
+                      <div className="mt-3">
+                        <ReportStatusTracker status={r.report_status ?? 'draft'} />
+                      </div>
                       {r.overallScore != null && (
                         <p className="text-slate-500 text-[10px] mt-1">
                           Score: {r.overallScore}

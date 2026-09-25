@@ -2,8 +2,8 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
 export const metadata = {
-  title: 'Terms of Service | GetNifty AIEO',
-  description: 'Terms of service for GetNifty AIEO – AI Engine Optimization platform.',
+  title: 'Terms of Service | AISEO by Ritesh',
+  description: 'Terms of service for AISEO by Ritesh – AI Engine Optimization platform.',
 };
 
 export default function TermsPage() {

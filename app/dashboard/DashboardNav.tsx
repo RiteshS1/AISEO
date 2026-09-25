@@ -19,7 +19,7 @@ export default function DashboardNav({ userEmail }: { userEmail: string }) {
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/audit', label: 'New AIEO Audit' },
     { href: '/dashboard/understanding-aieo', label: 'Understanding AIEO' },
-    { href: '/dashboard/why-getnifty', label: 'Why GetNifty?' },
+    { href: '/dashboard/why-aiseo', label: 'Why AISEO?' },
     { href: '/dashboard/feedback', label: 'Feedback' },
   ];
 
@@ -37,7 +37,7 @@ export default function DashboardNav({ userEmail }: { userEmail: string }) {
             AISEO
           </span>
           <span className="text-xs font-bold text-lime-400 uppercase tracking-widest">
-            by GetNifty
+            by Ritesh
           </span>
         </div>
         <nav className="flex-1 p-4 space-y-1">

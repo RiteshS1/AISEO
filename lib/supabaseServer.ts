@@ -26,15 +26,29 @@ export function isSupabaseConfigured(): boolean {
   return Boolean(url && serviceRoleKey);
 }
 
+export type ReportStatus =
+  | 'draft'
+  | 'pending_approval'
+  | 'generating'
+  | 'in_review'
+  | 'published'
+  | 'rejected';
+
 export async function saveReport(
   inputs: unknown,
-  result: unknown,
+  result: unknown = null,
   userId?: string | null
 ): Promise<string> {
   const supabase = getSupabase();
-  const row: { inputs: unknown; result: unknown; user_id?: string | null } = {
+  const row: {
+    inputs: unknown;
+    result: unknown;
+    report_status: ReportStatus;
+    user_id?: string | null;
+  } = {
     inputs,
     result,
+    report_status: 'draft',
   };
   if (userId != null) {
     row.user_id = userId;
@@ -55,23 +69,35 @@ export async function saveReport(
 
 export async function getReport(
   reportId: string
-): Promise<{ inputs: unknown; result: unknown } | null> {
+): Promise<{
+  inputs: unknown;
+  result: unknown;
+  report_status: ReportStatus;
+  user_id: string | null;
+} | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('reports')
-    .select('inputs, result')
+    .select('inputs, result, report_status, user_id')
     .eq('report_id', reportId)
     .single();
   if (error || !data) return null;
-  return { inputs: data.inputs, result: data.result };
+  return {
+    inputs: data.inputs,
+    result: data.result,
+    report_status: data.report_status as ReportStatus,
+    user_id: data.user_id ?? null,
+  };
 }
 
 export type ReportWithMeta = {
   inputs: unknown;
   result: unknown;
   email: string | null;
-  status: string | null;
+  report_status: ReportStatus;
   contact_name: string | null;
+  user_id: string | null;
+  admin_notes: string | null;
 };
 
 export async function getReportWithMeta(
@@ -80,7 +106,7 @@ export async function getReportWithMeta(
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('reports')
-    .select('inputs, result, email, status, contact_name')
+    .select('inputs, result, email, report_status, contact_name, user_id, admin_notes')
     .eq('report_id', reportId)
     .single();
   if (error || !data) return null;
@@ -88,33 +114,39 @@ export async function getReportWithMeta(
     inputs: data.inputs,
     result: data.result,
     email: data.email ?? null,
-    status: data.status ?? null,
+    report_status: data.report_status as ReportStatus,
     contact_name: data.contact_name ?? null,
+    user_id: data.user_id ?? null,
+    admin_notes: data.admin_notes ?? null,
   };
 }
 
 export async function updateReportPending(
   reportId: string,
   email: string,
-  contactName?: string
+  contactName: string | undefined,
+  userId: string
 ): Promise<void> {
   const supabase = getSupabase();
   const { data: existing } = await supabase
     .from('reports')
-    .select('status')
+    .select('report_status, user_id')
     .eq('report_id', reportId)
     .single();
   if (!existing) {
     throw new Error(`Report not found: ${reportId}`);
   }
-  if (existing.status === 'approved') {
-    throw new Error(`Report already approved: ${reportId}`);
+  if (existing.user_id !== userId) {
+    throw new Error(`Report not found: ${reportId}`);
+  }
+  if (existing.report_status !== 'draft') {
+    throw new Error(`Report is not a draft: ${reportId}`);
   }
   const { error } = await supabase
     .from('reports')
     .update({
       email,
-      status: 'pending',
+      report_status: 'pending_approval',
       contact_name: contactName ?? null,
     })
     .eq('report_id', reportId);
@@ -123,39 +155,76 @@ export async function updateReportPending(
   }
 }
 
-export async function setReportApproved(reportId: string): Promise<void> {
+export async function beginReportGeneration(reportId: string): Promise<void> {
   const supabase = getSupabase();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('reports')
-    .update({ status: 'approved' })
-    .eq('report_id', reportId);
+    .update({ report_status: 'generating' })
+    .eq('report_id', reportId)
+    .eq('report_status', 'pending_approval')
+    .select('report_id')
+    .maybeSingle();
   if (error) {
     throw new Error(`Supabase update failed: ${error.message}`);
   }
+  if (!data) throw new Error(`Report is no longer awaiting approval: ${reportId}`);
 }
 
-export async function setReportDenied(reportId: string): Promise<void> {
+export async function saveGeneratedReport(reportId: string, result: unknown): Promise<void> {
   const supabase = getSupabase();
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('reports')
-    .update({ status: 'denied' })
-    .eq('report_id', reportId);
+    .update({ result, report_status: 'in_review' })
+    .eq('report_id', reportId)
+    .eq('report_status', 'generating')
+    .select('report_id')
+    .maybeSingle();
   if (error) {
     throw new Error(`Supabase update failed: ${error.message}`);
   }
+  if (!data) throw new Error(`Report is no longer generating: ${reportId}`);
 }
 
-export type Profile = { id: string; audit_count: number };
+export async function setReportStatus(
+  reportId: string,
+  from: ReportStatus,
+  to: ReportStatus
+): Promise<void> {
+  const supabase = getSupabase();
+  const { data, error } = await supabase
+    .from('reports')
+    .update({ report_status: to })
+    .eq('report_id', reportId)
+    .eq('report_status', from)
+    .select('report_id')
+    .maybeSingle();
+  if (error) {
+    throw new Error(`Supabase update failed: ${error.message}`);
+  }
+  if (!data) throw new Error(`Report cannot transition from ${from}: ${reportId}`);
+}
+
+export async function markGenerationRetryable(reportId: string, note: string): Promise<void> {
+  const supabase = getSupabase();
+  const { error } = await supabase
+    .from('reports')
+    .update({ report_status: 'pending_approval', admin_notes: note })
+    .eq('report_id', reportId)
+    .eq('report_status', 'generating');
+  if (error) throw new Error(`Supabase recovery update failed: ${error.message}`);
+}
+
+export type Profile = { id: string; audit_count: number; is_admin: boolean };
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, audit_count')
+    .select('id, audit_count, is_admin')
     .eq('id', userId)
     .single();
   if (error || !data) return null;
-  return { id: data.id, audit_count: data.audit_count };
+  return { id: data.id, audit_count: data.audit_count, is_admin: Boolean(data.is_admin) };
 }
 
 export async function ensureProfile(userId: string): Promise<Profile> {
@@ -165,18 +234,18 @@ export async function ensureProfile(userId: string): Promise<Profile> {
   const { data, error } = await supabase
     .from('profiles')
     .insert({ id: userId, audit_count: 0 })
-    .select('id, audit_count')
+    .select('id, audit_count, is_admin')
     .single();
   if (error) throw new Error(`Supabase profile insert failed: ${error.message}`);
   if (!data) throw new Error('Supabase profile insert returned no row');
-  return { id: data.id, audit_count: data.audit_count };
+  return { id: data.id, audit_count: data.audit_count, is_admin: Boolean(data.is_admin) };
 }
 
 export type ReportListItem = {
   report_id: string;
   created_at: string;
   brandName?: string;
-  status?: string | null;
+  report_status?: ReportStatus;
   overallScore?: number;
 };
 
@@ -184,7 +253,7 @@ export async function listReportsByUserId(userId: string): Promise<ReportListIte
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('reports')
-    .select('report_id, created_at, inputs, result, status')
+    .select('report_id, created_at, inputs, result, report_status')
     .eq('user_id', userId)
     .order('created_at', { ascending: false });
   if (error) return [];
@@ -192,8 +261,11 @@ export async function listReportsByUserId(userId: string): Promise<ReportListIte
     report_id: row.report_id,
     created_at: row.created_at,
     brandName: (row.inputs as { brandName?: string })?.brandName,
-    status: row.status ?? null,
-    overallScore: (row.result as { overallScore?: number })?.overallScore,
+    report_status: row.report_status as ReportStatus,
+    overallScore:
+      row.report_status === 'published'
+        ? (row.result as { overallScore?: number })?.overallScore
+        : undefined,
   }));
 }
 

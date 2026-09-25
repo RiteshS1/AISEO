@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getReportWithMeta, setReportDenied } from '@/lib/supabaseServer';
+import { AdminAuthError, requireAdmin } from '@/lib/adminServer';
+import { getReportWithMeta, setReportStatus } from '@/lib/supabaseServer';
 
 const bodySchema = z.object({
   reportId: z.string().uuid(),
@@ -8,6 +9,7 @@ const bodySchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    await requireAdmin();
     const body = await request.json();
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) {
@@ -22,17 +24,20 @@ export async function POST(request: Request) {
     if (!report) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
-    if (report.status !== 'pending') {
+    if (!['pending_approval', 'in_review'].includes(report.report_status)) {
       return NextResponse.json(
-        { error: 'Report is not pending approval' },
-        { status: 400 }
+        { error: 'Report cannot be rejected in its current state' },
+        { status: 409 }
       );
     }
 
-    await setReportDenied(reportId);
+    await setReportStatus(reportId, report.report_status, 'rejected');
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, reportStatus: 'rejected' });
   } catch (err) {
+    if (err instanceof AdminAuthError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
     console.error('Deny error:', err);
     return NextResponse.json(
       { error: 'Failed to deny report' },

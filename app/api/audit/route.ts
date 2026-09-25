@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { auditInputsSchema } from '@/lib/schemas/auditInputs';
-import { runAudit } from '@/lib/auditServer';
 import {
   saveReport,
   ensureProfile,
@@ -33,13 +32,12 @@ export async function POST(request: Request) {
       );
     }
     const inputs = parsed.data;
-    const result = await runAudit(inputs);
-    const reportId = await saveReport(inputs, result, user.id);
+    const reportId = await saveReport(inputs, null, user.id);
     await incrementAuditCount(user.id);
     return NextResponse.json({
       success: true,
       reportId,
-      result,
+      reportStatus: 'draft',
     });
   } catch (err) {
     console.error('Audit Error:', err);

@@ -30,7 +30,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link href="/" className="flex flex-col sm:flex-row sm:items-baseline sm:gap-2 leading-none">
               <span className="text-xl font-black tracking-tighter uppercase text-white">AISEO</span>
-              <span className="text-[10px] text-lime-400 font-bold tracking-widest">by GetNifty</span>
+              <span className="text-[10px] text-lime-400 font-bold tracking-widest">by Ritesh</span>
             </Link>
           </div>
 

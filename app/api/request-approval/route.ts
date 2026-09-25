@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import { createClient } from '@/lib/supabase/server';
 import { getReport, updateReportPending } from '@/lib/supabaseServer';
 import { sendApprovalRequest } from '@/lib/discordServer';
 
@@ -25,6 +26,10 @@ export async function POST(request: Request) {
       );
     }
 
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { reportId, email, brandName, industry, websiteUrl, contactName } = parsed.data;
 
     const report = await getReport(reportId);
@@ -35,18 +40,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const overallScore =
-      (report.result as { overallScore?: number })?.overallScore ?? 0;
+    await updateReportPending(reportId, email, contactName, user.id);
 
-    await updateReportPending(reportId, email, contactName);
-
-    const host = request.headers.get('host');
-    if (!host) {
-      throw new Error('Missing Host header');
-    }
-    const protocol =
-      request.headers.get('x-forwarded-proto') ?? 'https';
-    const reviewUrl = `${protocol}://${host}/admin/review/${reportId}`;
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+    if (!siteUrl) throw new Error('NEXT_PUBLIC_SITE_URL is missing');
+    const reviewUrl = `${siteUrl.replace(/\/$/, '')}/admin/review/${reportId}`;
 
     await sendApprovalRequest({
       contactName,
@@ -54,7 +52,7 @@ export async function POST(request: Request) {
       email,
       industry,
       websiteUrl,
-      overallScore,
+      overallScore: 0,
       reviewUrl,
     });
 

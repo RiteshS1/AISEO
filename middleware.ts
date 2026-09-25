@@ -34,12 +34,13 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
-  // Protect dashboard; /admin/review/* is intentionally open (access via Discord link).
+  // Protect dashboard and admin routes at the session boundary.
   const isDashboard = pathname === '/dashboard' || pathname.startsWith('/dashboard/');
-  if (isDashboard && !user) {
+  const isAdmin = pathname === '/admin' || pathname.startsWith('/admin/');
+  if ((isDashboard || isAdmin) && !user) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    loginUrl.searchParams.set('next', pathname);
+    loginUrl.searchParams.set('next', `${pathname}${request.nextUrl.search}`);
     return NextResponse.redirect(loginUrl);
   }
 

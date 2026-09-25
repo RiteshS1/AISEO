@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getReport, getReportWithMeta, isSupabaseConfigured } from '@/lib/supabaseServer';
+import { createClient } from '@/lib/supabase/server';
+import { getProfile, getReport, getReportWithMeta, isSupabaseConfigured } from '@/lib/supabaseServer';
 
 export async function GET(
   request: Request,
@@ -14,7 +15,12 @@ export async function GET(
   }
   const url = new URL(request.url);
   const withMeta = url.searchParams.get('meta') === '1';
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
   if (withMeta) {
+    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const profile = await getProfile(user.id);
+    if (!profile?.is_admin) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     const report = await getReportWithMeta(reportId);
     if (!report) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
@@ -22,13 +28,19 @@ export async function GET(
     return NextResponse.json({
       inputs: report.inputs,
       result: report.result,
+      reportStatus: report.report_status,
       email: report.email,
-      status: report.status,
     });
   }
   const report = await getReport(reportId);
   if (!report) {
     return NextResponse.json({ error: 'Report not found' }, { status: 404 });
   }
-  return NextResponse.json({ inputs: report.inputs, result: report.result });
+  if (report.report_status !== 'published') {
+    if (!user || report.user_id !== user.id) {
+      return NextResponse.json({ error: 'Report not found' }, { status: 404 });
+    }
+    return NextResponse.json({ reportStatus: report.report_status });
+  }
+  return NextResponse.json({ inputs: report.inputs, result: report.result, reportStatus: report.report_status });
 }

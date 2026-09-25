@@ -2,8 +2,8 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 
 export const metadata = {
-  title: 'Privacy Policy | GetNifty AIEO',
-  description: 'Privacy policy for GetNifty AIEO – AI Engine Optimization platform.',
+  title: 'Privacy Policy | AISEO by Ritesh',
+  description: 'Privacy policy for AISEO by Ritesh – AI Engine Optimization platform.',
 };
 
 export default function PrivacyPage() {

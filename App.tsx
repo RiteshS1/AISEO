@@ -323,7 +323,7 @@ const App: React.FC = () => {
       <footer className='py-20 border-t border-white/5 bg-black text-center'>
         <div className='flex justify-center items-center gap-2 mb-4'>
           <span className='text-xl font-black uppercase tracking-tighter text-white'>AIEO</span>
-          <span className='text-[10px] font-bold text-lime-400 uppercase tracking-widest'>by GetNifty</span>
+          <span className='text-[10px] font-bold text-lime-400 uppercase tracking-widest'>by Ritesh</span>
         </div>
         <p className='text-[10px] font-black uppercase tracking-[0.3em] text-slate-700'>Digital visibility solutions for modern brands.</p>
         <div className='mt-10 flex justify-center gap-10 text-[9px] font-bold uppercase tracking-[0.2em] text-slate-500'>

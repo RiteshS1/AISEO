@@ -18,7 +18,7 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://aiseo-n9lz.vercel.app'),
-  title: 'GetNifty AIEO | Dominate AI Search Visibility',
+  title: 'AISEO by Ritesh | AI Search Visibility',
   description:
     'AI Engine Optimization (AIEO) platform. Audit and optimize your brand for ChatGPT, Gemini, Perplexity & LLMs. Free AI visibility audit – get discovered when AI answers.',
   keywords: [
@@ -30,19 +30,19 @@ export const metadata: Metadata = {
     'LLM optimization',
     'AI SEO',
     'answer engine optimization',
-    'GetNifty',
+    'AISEO by Ritesh',
   ],
   openGraph: {
-    title: 'GetNifty AIEO | Dominate AI Search Visibility',
+    title: 'AISEO by Ritesh | AI Search Visibility',
     description:
       'AI Engine Optimization platform. Audit your brand for ChatGPT, Gemini & Perplexity. Free AI visibility audit.',
     url: '/',
-    siteName: 'GetNifty AIEO',
+    siteName: 'AISEO by Ritesh',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'GetNifty AIEO | Dominate AI Search Visibility',
+    title: 'AISEO by Ritesh | AI Search Visibility',
     description:
       'AI Engine Optimization platform. Audit your brand for ChatGPT, Gemini & Perplexity. Free AI visibility audit.',
   },
@@ -69,9 +69,9 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': ['Organization', 'SoftwareApplication'],
-              name: 'GetNifty',
+              name: 'AISEO by Ritesh',
               description:
-                'GetNifty AIEO is an AI Engine Optimization (AIEO) auditing platform that helps brands dominate visibility in AI search. We audit and optimize for ChatGPT, Gemini, Perplexity, and other LLMs so your brand is discovered when AI answers.',
+                'AISEO by Ritesh is an AI Engine Optimization auditing platform that helps brands improve visibility in AI search.',
               applicationCategory: 'BusinessApplication',
               operatingSystem: 'Web',
             }),
@@ -106,7 +106,7 @@ export default function RootLayout({
                   name: 'What are the best AI SEO tools?',
                   acceptedAnswer: {
                     '@type': 'Answer',
-                    text: 'While content tools like Jasper are popular, true AISEO requires visibility analytics tools that measure entity confidence. GetNifty provides specialized auditing for brand visibility across LLMs.',
+                    text: 'AISEO by Ritesh provides specialized auditing for brand visibility across large language models.',
                   },
                 },
                 {

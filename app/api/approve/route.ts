@@ -1,7 +1,17 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-import { getReportWithMeta, setReportApproved } from '@/lib/supabaseServer';
-import { addSubscriber } from '@/lib/mailerliteServer';
+import { AdminAuthError, requireAdmin } from '@/lib/adminServer';
+import { runAudit } from '@/lib/auditServer';
+import {
+  beginReportGeneration,
+  getReportWithMeta,
+  markGenerationRetryable,
+  saveGeneratedReport,
+} from '@/lib/supabaseServer';
+import { sendReviewReady } from '@/lib/discordServer';
+import type { AuditInputs } from '@/lib/schemas/auditInputs';
+
+export const maxDuration = 60;
 
 const bodySchema = z.object({
   reportId: z.string().uuid(),
@@ -9,6 +19,7 @@ const bodySchema = z.object({
 
 export async function POST(request: Request) {
   try {
+    await requireAdmin();
     const body = await request.json();
     const parsed = bodySchema.safeParse(body);
     if (!parsed.success) {
@@ -23,50 +34,35 @@ export async function POST(request: Request) {
     if (!report) {
       return NextResponse.json({ error: 'Report not found' }, { status: 404 });
     }
-    if (report.status !== 'pending') {
+    if (report.report_status !== 'pending_approval') {
       return NextResponse.json(
-        { error: 'Report is not pending approval' },
-        { status: 400 }
+        { error: 'Report is not awaiting approval' },
+        { status: 409 }
       );
     }
-    if (!report.email) {
-      return NextResponse.json(
-        { error: 'Report has no email' },
-        { status: 400 }
-      );
+    await beginReportGeneration(reportId);
+    try {
+      const result = await runAudit(report.inputs as AuditInputs);
+      await saveGeneratedReport(reportId, result);
+    } catch (generationError) {
+      const message = generationError instanceof Error ? generationError.message : 'Unknown Gemini failure';
+      await markGenerationRetryable(reportId, message.slice(0, 2000));
+      throw generationError;
+    }
+    try {
+      await sendReviewReady(reportId, report.contact_name ?? 'Unknown');
+    } catch (notificationError) {
+      console.error('Review-ready Discord notification failed:', notificationError);
     }
 
-    const inputs = report.inputs as {
-      brandName?: string;
-      industry?: string;
-      websiteUrl?: string;
-      keywords?: string;
-    };
-    const host = request.headers.get('host');
-    const protocol = request.headers.get('x-forwarded-proto') ?? 'https';
-    const reportUrl =
-      host ? `${protocol}://${host}/report/${reportId}` : undefined;
-
-    const overallScore = (report.result as { overallScore?: number })?.overallScore;
-
-    addSubscriber({
-      email: report.email,
-      brandName: inputs.brandName ?? '',
-      industry: inputs.industry ?? '',
-      websiteUrl: inputs.websiteUrl ?? '',
-      keywords: inputs.keywords ?? '',
-      reportUrl,
-      ...(report.contact_name ? { name: report.contact_name } : {}),
-      ...(overallScore != null ? { ai_score: overallScore } : {}),
-    }).catch((err) => console.error('MailerLite sync failed:', err));
-
-    await setReportApproved(reportId);
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, reportStatus: 'in_review' });
   } catch (err) {
+    if (err instanceof AdminAuthError) {
+      return NextResponse.json({ error: err.message }, { status: err.status });
+    }
     console.error('Approve error:', err);
     return NextResponse.json(
-      { error: 'Failed to approve report' },
+      { error: 'Failed to generate report' },
       { status: 500 }
     );
   }
