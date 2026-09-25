@@ -33,7 +33,7 @@ function extractJson(text: string): unknown {
 }
 
 const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.5-flash-lite';
-const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-1.5-flash';
+const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-3.5-flash';
 
 const MAX_RETRIES = 3;
 const INITIAL_BACKOFF_MS = 2000;
