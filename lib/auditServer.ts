@@ -32,7 +32,7 @@ function extractJson(text: string): unknown {
   throw new Error('The report data is formatted incorrectly. Please try again.');
 }
 
-const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.5-flash';
+const PRIMARY_MODEL = process.env.GEMINI_MODEL ?? 'gemini-3.8-flash';
 const FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL ?? 'gemini-1.5-flash';
 
 const MAX_RETRIES = 3;

@@ -10,8 +10,8 @@ import { GoogleGenAI } from '@google/genai';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const envPath = join(__dirname, '..', '.env.local');
-/** Try in order; @google/genai quick start uses gemini-2.5-flash. */
-const MODELS_TO_TRY = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash'];
+
+const MODELS_TO_TRY = ['gemini-3.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'];
 
 function extractKeys(content) {
   const keys = [];
