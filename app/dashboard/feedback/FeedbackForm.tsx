@@ -6,16 +6,32 @@ export default function FeedbackForm({ userEmail }: { userEmail: string }) {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!feedback.trim()) return;
+    const message = feedback.trim();
+    if (message.length < 10 || message.length > 2000) {
+      setError('Feedback must be between 10 and 2000 characters.');
+      return;
+    }
     setLoading(true);
-    setTimeout(() => {
+    setError('');
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ feedback: message }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error ?? 'Unable to submit feedback.');
       setLoading(false);
       setSubmitted(true);
       setFeedback('');
-    }, 1000);
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : 'Unable to submit feedback.');
+      setLoading(false);
+    }
   };
 
   return (
@@ -27,7 +43,7 @@ export default function FeedbackForm({ userEmail }: { userEmail: string }) {
         Feedback
       </h1>
       <p className="text-slate-500 text-[11px] font-bold tracking-widest leading-relaxed mb-10">
-        Tell us how we can improve. (Not wired to backend yet.)
+        Tell us how we can improve.
       </p>
 
       {submitted ? (
@@ -82,6 +98,7 @@ export default function FeedbackForm({ userEmail }: { userEmail: string }) {
               'Submit feedback'
             )}
           </button>
+          {error && <p className="text-red-400 text-[10px] font-bold tracking-widest">{error}</p>}
         </form>
       )}
     </>

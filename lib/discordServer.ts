@@ -54,34 +54,27 @@ export async function sendApprovalRequest(
   }
 }
 
-export async function sendReviewReady(reportId: string, contactName: string): Promise<void> {
+export async function sendFeedback(params: { email: string; feedback: string }): Promise<void> {
   const url = process.env.DISCORD_WEBHOOK_URL;
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!url || !siteUrl) {
-    throw new Error('Discord notification is not configured.');
-  }
+  if (!url || url.length < 10) throw new Error('DISCORD_WEBHOOK_URL is missing or invalid.');
 
-  const reviewUrl = `${siteUrl.replace(/\/$/, '')}/admin/review/${reportId}`;
-  const res = await fetch(url, {
+  const response = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      embeds: [
-        {
-          title: 'Report ready for quality review',
-          color: 0x5865f2,
-          fields: [
-            { name: 'Contact', value: contactName, inline: true },
-            { name: 'Review', value: `[Open review](${reviewUrl})`, inline: false },
-          ],
-        },
-      ],
+      embeds: [{
+        title: 'User feedback received',
+        color: 0xd9ff00,
+        fields: [
+          { name: 'Email', value: params.email, inline: true },
+          { name: 'Feedback', value: params.feedback, inline: false },
+          { name: 'Submitted', value: new Date().toISOString(), inline: false },
+        ],
+      }],
     }),
   });
 
-  if (!res.ok) {
-    throw new Error(`Discord webhook failed: ${res.status} ${await res.text()}`);
-  }
+  if (!response.ok) throw new Error(`Discord webhook failed: ${response.status}`);
 }
 
 export async function sendConsultationRequest(params: {

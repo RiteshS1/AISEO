@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
-import { FAQ_ITEMS } from '@/constants/faq';
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
@@ -78,21 +77,6 @@ export default function RootLayout({
                 'AISEO by Ritesh is an AI Engine Optimization auditing platform that helps brands improve visibility in AI search.',
               applicationCategory: 'BusinessApplication',
               operatingSystem: 'Web',
-            }),
-          }}
-        />
-        <script
-          type="application/ld+json"
-          suppressHydrationWarning
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'FAQPage',
-              mainEntity: FAQ_ITEMS.map((faq) => ({
-                '@type': 'Question',
-                name: faq.q,
-                acceptedAnswer: { '@type': 'Answer', text: faq.a },
-              })),
             }),
           }}
         />

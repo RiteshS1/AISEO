@@ -8,7 +8,6 @@ import {
   markGenerationRetryable,
   saveGeneratedReport,
 } from '@/lib/supabaseServer';
-import { sendReviewReady } from '@/lib/discordServer';
 import type { AuditInputs } from '@/lib/schemas/auditInputs';
 
 export const maxDuration = 60;
@@ -45,17 +44,18 @@ export async function POST(request: Request) {
       const result = await runAudit(report.inputs as AuditInputs);
       await saveGeneratedReport(reportId, result);
     } catch (generationError) {
-      const message = generationError instanceof Error ? generationError.message : 'Unknown Gemini failure';
+      const message = generationError instanceof Error ? generationError.message : 'Unknown AI provider failure';
       await markGenerationRetryable(reportId, message.slice(0, 2000));
       throw generationError;
     }
-    try {
-      await sendReviewReady(reportId, report.contact_name ?? 'Unknown');
-    } catch (notificationError) {
-      console.error('Review-ready Discord notification failed:', notificationError);
-    }
-
-    return NextResponse.json({ success: true, reportStatus: 'in_review' });
+    const generatedReport = await getReportWithMeta(reportId);
+    return NextResponse.json({
+      success: true,
+      reportId,
+      reportStatus: 'in_review',
+      inputs: generatedReport?.inputs,
+      result: generatedReport?.result,
+    });
   } catch (err) {
     if (err instanceof AdminAuthError) {
       return NextResponse.json({ error: err.message }, { status: err.status });

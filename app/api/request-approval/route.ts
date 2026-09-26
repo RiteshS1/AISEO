@@ -6,13 +6,7 @@ import { sendApprovalRequest } from '@/lib/discordServer';
 
 const bodySchema = z.object({
   contactName: z.string().min(1).optional(),
-  email: z.string().email().optional(),
-  brandName: z.string(),
-  industry: z.string(),
-  websiteUrl: z.string(),
-  keywords: z.string(),
   reportId: z.string().uuid(),
-  reportUrl: z.string().optional(),
 });
 
 export async function POST(request: Request) {
@@ -30,8 +24,8 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { reportId, brandName, industry, websiteUrl, contactName } = parsed.data;
-    const email = user.email ?? parsed.data.email;
+    const { reportId, contactName } = parsed.data;
+    const email = user.email;
     if (!email) return NextResponse.json({ error: 'Authenticated email is required' }, { status: 400 });
     const resolvedContactName = contactName?.trim() || (user.user_metadata?.full_name as string | undefined) || user.email?.split('@')[0] || 'User';
 
@@ -43,6 +37,8 @@ export async function POST(request: Request) {
       );
     }
 
+    const inputs = report.inputs as { brandName?: string; industry?: string; websiteUrl?: string };
+
     await updateReportPending(reportId, email, resolvedContactName, user.id);
 
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -51,10 +47,10 @@ export async function POST(request: Request) {
 
     await sendApprovalRequest({
       contactName: resolvedContactName,
-      brandName,
+      brandName: inputs.brandName ?? '',
       email,
-      industry,
-      websiteUrl,
+      industry: inputs.industry ?? '',
+      websiteUrl: inputs.websiteUrl ?? '',
       overallScore: 0,
       reviewUrl,
     });
@@ -68,7 +64,7 @@ export async function POST(request: Request) {
         { status: 503 }
       );
     }
-    if (message.includes('Report not found') || message.includes('already approved')) {
+    if (message.includes('Report not found') || message.includes('not a draft')) {
       return NextResponse.json({ error: message }, { status: 400 });
     }
     console.error('Request approval error:', err);

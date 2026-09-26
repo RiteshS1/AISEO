@@ -24,6 +24,20 @@ const App: React.FC = () => {
 
   return (
     <div className='min-h-screen bg-[#020617] text-slate-50 selection:bg-lime-500/30'>
+      <script
+        type='application/ld+json'
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQ_ITEMS.map((faq) => ({
+              '@type': 'Question',
+              name: faq.q,
+              acceptedAnswer: { '@type': 'Answer', text: faq.a },
+            })),
+          }),
+        }}
+      />
       <Navbar />
 
       {/* 01. AUDIT TEASER (HERO) */}
@@ -268,7 +282,37 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* 06. CONTACT SECTION */}
+      {/* 06. PRICING */}
+      <section id='pricing' className='py-24 px-6 bg-slate-900/10 border-y border-white/5 scroll-mt-20'>
+        <div className='max-w-7xl mx-auto'>
+          <div className='text-center mb-16'>
+            <h2 className='text-3xl md:text-5xl font-black uppercase tracking-tighter text-white mb-4'>Simple Audit Credits</h2>
+            <p className='text-[10px] text-lime-400 font-bold uppercase tracking-[0.3em]'>One-time packs. No subscriptions.</p>
+          </div>
+          <div className='grid md:grid-cols-3 gap-6'>
+            <div className='p-8 bg-slate-900/50 border border-lime-400/30 rounded-[7px]'>
+              <p className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4'>Free Starter</p>
+              <h3 className='text-3xl font-black text-white mb-3'>₹0</h3>
+              <p className='text-slate-400 text-xs mb-8'>2 audits included with your account.</p>
+              <a href='/register' className='block text-center py-3 bg-lime-400 text-black font-black uppercase text-[10px] tracking-widest rounded-[7px] hover:bg-white transition-all'>Start free</a>
+            </div>
+            <div className='p-8 bg-slate-900/50 border border-white/10 rounded-[7px]'>
+              <p className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4'>Pro Pack</p>
+              <h3 className='text-3xl font-black text-white mb-3'>₹99</h3>
+              <p className='text-slate-400 text-xs mb-8'>3 additional audits, one-time.</p>
+              <a href='/dashboard/billing' className='block text-center py-3 border-2 border-lime-400/50 text-lime-400 font-black uppercase text-[10px] tracking-widest rounded-[7px] hover:bg-lime-400/10 transition-all'>Buy credits</a>
+            </div>
+            <div className='p-8 bg-slate-900/50 border border-white/10 rounded-[7px]'>
+              <p className='text-[10px] text-slate-500 font-black uppercase tracking-widest mb-4'>Agency Pack</p>
+              <h3 className='text-3xl font-black text-white mb-3'>₹299</h3>
+              <p className='text-slate-400 text-xs mb-8'>10 additional audits, one-time.</p>
+              <a href='/dashboard/billing' className='block text-center py-3 border-2 border-lime-400/50 text-lime-400 font-black uppercase text-[10px] tracking-widest rounded-[7px] hover:bg-lime-400/10 transition-all'>Buy credits</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 07. CONTACT SECTION */}
       <section id={SectionId.Contact} className='py-32 px-6 relative overflow-hidden scroll-mt-20'>
         <div className='absolute inset-0 bg-gradient-to-br from-lime-400 to-emerald-500 opacity-90'></div>
         <div className='max-w-4xl mx-auto text-center relative z-10'>
