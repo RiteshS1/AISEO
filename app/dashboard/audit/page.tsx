@@ -9,9 +9,7 @@ export default async function DashboardAuditPage() {
   } = await supabase.auth.getUser();
   if (!user) return null;
   const profile = await getProfile(user.id);
-  const auditCount = profile?.audit_count ?? 0;
-  const limit = 2;
-  const allowed = auditCount < limit;
+  const allowed = (profile?.credits_remaining ?? 0) > 0;
   const prefillContactName =
     (user.user_metadata?.full_name as string) ||
     (user.user_metadata?.name as string) ||

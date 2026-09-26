@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { AdminAuthError, requireAdmin } from '@/lib/adminServer';
-import { getReportWithMeta, setReportStatus } from '@/lib/supabaseServer';
+import { getReportWithMeta, rejectReportAndRefund } from '@/lib/supabaseServer';
 
 const bodySchema = z.object({
   reportId: z.string().uuid(),
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
       );
     }
 
-    await setReportStatus(reportId, report.report_status, 'rejected');
+    const refunded = await rejectReportAndRefund(reportId);
+    if (!refunded) return NextResponse.json({ error: 'Report could not be rejected or refunded' }, { status: 409 });
 
     return NextResponse.json({ success: true, reportStatus: 'rejected' });
   } catch (err) {

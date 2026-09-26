@@ -218,17 +218,31 @@ export async function markGenerationRetryable(reportId: string, note: string): P
   if (error) throw new Error(`Supabase recovery update failed: ${error.message}`);
 }
 
-export type Profile = { id: string; audit_count: number; is_admin: boolean };
+export type Profile = {
+  id: string;
+  audit_count: number;
+  credits_remaining: number;
+  credits_used: number;
+  plan: 'free' | 'pro' | 'agency';
+  is_admin: boolean;
+};
 
 export async function getProfile(userId: string): Promise<Profile | null> {
   const supabase = getSupabase();
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, audit_count, is_admin')
+    .select('id, audit_count, credits_remaining, credits_used, plan, is_admin')
     .eq('id', userId)
     .single();
   if (error || !data) return null;
-  return { id: data.id, audit_count: data.audit_count, is_admin: Boolean(data.is_admin) };
+  return {
+    id: data.id,
+    audit_count: data.audit_count,
+    credits_remaining: data.credits_remaining,
+    credits_used: data.credits_used,
+    plan: (data.plan ?? 'free') as Profile['plan'],
+    is_admin: Boolean(data.is_admin),
+  };
 }
 
 export async function ensureProfile(userId: string): Promise<Profile> {
@@ -238,11 +252,18 @@ export async function ensureProfile(userId: string): Promise<Profile> {
   const { data, error } = await supabase
     .from('profiles')
     .insert({ id: userId, audit_count: 0 })
-    .select('id, audit_count, is_admin')
+    .select('id, audit_count, credits_remaining, credits_used, plan, is_admin')
     .single();
   if (error) throw new Error(`Supabase profile insert failed: ${error.message}`);
   if (!data) throw new Error('Supabase profile insert returned no row');
-  return { id: data.id, audit_count: data.audit_count, is_admin: Boolean(data.is_admin) };
+  return {
+    id: data.id,
+    audit_count: data.audit_count,
+    credits_remaining: data.credits_remaining,
+    credits_used: data.credits_used,
+    plan: (data.plan ?? 'free') as Profile['plan'],
+    is_admin: Boolean(data.is_admin),
+  };
 }
 
 export type ReportListItem = {
@@ -273,13 +294,73 @@ export async function listReportsByUserId(userId: string): Promise<ReportListIte
   }));
 }
 
-export async function incrementAuditCount(userId: string): Promise<void> {
-  const supabase = getSupabase();
-  const profile = await getProfile(userId);
-  const nextCount = (profile?.audit_count ?? 0) + 1;
-  const { error } = await supabase
-    .from('profiles')
-    .update({ audit_count: nextCount, updated_at: new Date().toISOString() })
-    .eq('id', userId);
-  if (error) throw new Error(`Supabase increment failed: ${error.message}`);
+export async function reserveAuditSlot(userId: string): Promise<boolean> {
+  const { data, error } = await getSupabase().rpc('reserve_audit_slot', { p_user_id: userId });
+  if (error) throw new Error(`Supabase quota reservation failed: ${error.message}`);
+  return data === true;
+}
+
+export async function refundAuditSlot(userId: string): Promise<boolean> {
+  const { data, error } = await getSupabase().rpc('refund_audit_slot', { p_user_id: userId });
+  if (error) throw new Error(`Supabase quota refund failed: ${error.message}`);
+  return data === true;
+}
+
+export async function rejectReportAndRefund(reportId: string): Promise<boolean> {
+  const { data, error } = await getSupabase().rpc('reject_report_and_refund', {
+    p_report_id: reportId,
+  });
+  if (error) throw new Error(`Supabase rejection refund failed: ${error.message}`);
+  return data === true;
+}
+
+export type PaymentOrder = {
+  id: string;
+  user_id: string;
+  razorpay_order_id: string;
+  razorpay_payment_id: string | null;
+  amount: number;
+  currency: string;
+  status: 'pending' | 'paid' | 'failed';
+  pack_type: 'pro' | 'agency';
+  credits: number;
+};
+
+export async function createPaymentOrder(order: {
+  userId: string;
+  razorpayOrderId: string;
+  amount: number;
+  packType: 'pro' | 'agency';
+  credits: number;
+}): Promise<void> {
+  const { error } = await getSupabase().from('payment_orders').insert({
+    user_id: order.userId,
+    razorpay_order_id: order.razorpayOrderId,
+    amount: order.amount,
+    currency: 'INR',
+    status: 'pending',
+    pack_type: order.packType,
+    credits: order.credits,
+  });
+  if (error) throw new Error(`Payment order insert failed: ${error.message}`);
+}
+
+export async function getPaymentOrder(razorpayOrderId: string): Promise<PaymentOrder | null> {
+  const { data, error } = await getSupabase()
+    .from('payment_orders')
+    .select('id, user_id, razorpay_order_id, razorpay_payment_id, amount, currency, status, pack_type, credits')
+    .eq('razorpay_order_id', razorpayOrderId)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as PaymentOrder;
+}
+
+export async function fulfillPayment(orderId: string, paymentId: string, packType: 'pro' | 'agency'): Promise<boolean> {
+  const { data, error } = await getSupabase().rpc('fulfill_payment', {
+    p_order_id: orderId,
+    p_payment_id: paymentId,
+    p_pack_type: packType,
+  });
+  if (error) throw new Error(`Payment fulfillment failed: ${error.message}`);
+  return data === true;
 }

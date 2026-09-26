@@ -1,6 +1,6 @@
 # AISEO by Ritesh Sharma
 
-AI Visibility Audit: submit brand audits for human approval, generate them with Gemini and Groq fallback after approval, and publish verified reports through Supabase. Next.js 15, App Router.
+AI Visibility Audit: submit brand audits for human approval, generate them with Groq and Gemini fallback after approval, and publish verified reports through Supabase. Next.js 15, App Router.
 
 ## Setup
 
@@ -15,6 +15,9 @@ AI Visibility Audit: submit brand audits for human approval, generate them with 
 | `NEXT_PUBLIC_SUPABASE_URL` | Yes | Supabase project URL. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Yes | Supabase anon (publishable) key for Auth. |
 | `NEXT_PRIVATE_SERVICE_ROLE_API_KEY` | Yes | Supabase service role key; server-only. |
+| `RAZORPAY_KEY_ID` | Yes for billing | Razorpay server key ID. |
+| `RAZORPAY_KEY_SECRET` | Yes for billing | Razorpay server secret; never expose to the browser. |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Yes for billing | Razorpay Checkout public key ID. |
 | `DISCORD_WEBHOOK_URL` | Yes | Discord webhook for approval requests (brand, email, score, review link). |
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL | Used for Discord review and public report links. |
 | `GROQ_MODEL` | No | Primary Groq model (default: `openai/gpt-oss-120b`). |
@@ -29,11 +32,11 @@ AI Visibility Audit: submit brand audits for human approval, generate them with 
 
 ## Flow
 
-Audit form → `POST /api/audit` (Zod) → draft saved to Supabase. User confirms their authenticated contact details → `POST /api/request-approval` sets `pending_approval` and sends a Discord review link. An authenticated admin opens `/admin/review/[reportId]`, approves generation, reviews the Groq or Gemini output, and publishes it. Reports move through `draft`, `pending_approval`, `generating`, `in_review`, `published`, or `rejected`. Only published reports are publicly readable.
+Audit form → atomic credit reservation via Supabase RPC → `POST /api/audit` creates a draft. User confirms their authenticated contact details → `POST /api/request-approval` sets `pending_approval` and sends a Discord review link. An authenticated admin opens `/admin/review/[reportId]`, approves generation, reviews the Groq or Gemini output, and publishes it. Reports move through `draft`, `pending_approval`, `generating`, `in_review`, `published`, or `rejected`. Only published reports are publicly readable.
 
 ## Code structure
 
-- **app/** — Next.js 15 App Router: `page.tsx` (home → `App`), `login`/`register`, `dashboard/*` (protected), `report/[reportId]` (auth-aware layout), `admin/review/[reportId]` (admin-protected), `api/*` (audit, approve, deny, publish, rerun, report, request-approval, me).
+- **app/** — Next.js 15 App Router: `page.tsx` (home → `App`), `login`/`register`, `dashboard/*` (protected, including billing), `report/[reportId]` (auth-aware layout), `admin/review/[reportId]` (admin-protected), `api/*` (audit, billing, feedback, consultation, approve, deny, publish, rerun, report, request-approval, me).
 - **components/** — `AuditTool` (form, scanning, gate, report viewer), `Navbar` (public).
 - **lib/** — `supabase/server` (auth), `supabase/client` (browser), `supabaseServer` (service-role + reports/profiles), `adminServer`, `auditServer`, `discordServer`, `schemas/*`.
 - **middleware** — Supabase SSR auth; redirects unauthenticated `/dashboard/*` and `/admin/*` routes to `/login?next=...`. Admin pages and mutations also verify `profiles.is_admin` server-side.
@@ -41,6 +44,8 @@ Audit form → `POST /api/audit` (Zod) → draft saved to Supabase. User confirm
 ## Database
 
 `supabase/schema.sql` is the canonical schema for a fresh Supabase project. It defines nullable report results for draft creation, the HITL `report_status` state machine, report ownership, admin notes, and `profiles.is_admin`.
+
+It also defines the atomic audit-credit RPCs and `payment_orders` table. Free accounts start with 2 credits. Pro Pack adds 3 audits for ₹99; Agency Pack adds 10 audits for ₹299. Admin rejection refunds one reserved credit. Generation retries do not consume additional credits.
 
 ## SEO & AIEO tracking
 

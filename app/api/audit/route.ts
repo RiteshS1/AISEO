@@ -4,7 +4,8 @@ import { auditInputsSchema } from '@/lib/schemas/auditInputs';
 import {
   saveReport,
   ensureProfile,
-  incrementAuditCount,
+  reserveAuditSlot,
+  refundAuditSlot,
 } from '@/lib/supabaseServer';
 
 export async function POST(request: Request) {
@@ -16,13 +17,7 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    const profile = await ensureProfile(user.id);
-    if (profile.audit_count >= 2) {
-      return NextResponse.json(
-        { error: 'Free audit limit reached' },
-        { status: 403 }
-      );
-    }
+    await ensureProfile(user.id);
     const body = await request.json();
     const parsed = auditInputsSchema.safeParse(body);
     if (!parsed.success) {
@@ -32,8 +27,15 @@ export async function POST(request: Request) {
       );
     }
     const inputs = parsed.data;
-    const reportId = await saveReport(inputs, null, user.id);
-    await incrementAuditCount(user.id);
+    const reserved = await reserveAuditSlot(user.id);
+    if (!reserved) return NextResponse.json({ error: 'No audit credits remaining' }, { status: 403 });
+    let reportId: string;
+    try {
+      reportId = await saveReport(inputs, null, user.id);
+    } catch (saveError) {
+      await refundAuditSlot(user.id);
+      throw saveError;
+    }
     return NextResponse.json({
       success: true,
       reportId,

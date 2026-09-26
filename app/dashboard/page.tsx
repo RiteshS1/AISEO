@@ -4,7 +4,6 @@ import Link from 'next/link';
 import ReportStatusTracker from './ReportStatusTracker';
 
 const CALCOM_URL = 'https://cal.com/ritesh-sharma-hfn1t8/15min';
-const CONTACT_SALES_EMAIL = 'mailto:riteshsharma@example.com';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -14,8 +13,9 @@ export default async function DashboardPage() {
   if (!user) return null;
   const profile = await getProfile(user.id);
   const reports = await listReportsByUserId(user.id);
-  const auditCount = profile?.audit_count ?? 0;
-  const limit = 2;
+  const creditsRemaining = profile?.credits_remaining ?? 0;
+  const creditsUsed = profile?.credits_used ?? 0;
+  const totalCredits = creditsRemaining + creditsUsed;
   const displayName =
     (user.user_metadata?.full_name as string | undefined) ||
     user.email?.split('@')[0] ||
@@ -53,15 +53,15 @@ export default async function DashboardPage() {
               {userEmail}
             </p>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">
-              Current Plan: Free Tier
+              Current Plan: {profile?.plan === 'agency' ? 'Agency' : profile?.plan === 'pro' ? 'Pro' : 'Free'}
             </p>
             <p className="text-lime-400 text-sm font-black">
-              {auditCount} / {limit} Free Audits Remaining
+              {creditsUsed} used · {creditsRemaining} remaining
             </p>
             <div className="mt-3 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
               <div
                 className="h-full bg-lime-400/80 rounded-full transition-all duration-500"
-                style={{ width: `${Math.max(0, 100 - (auditCount / limit) * 100)}%` }}
+                style={{ width: `${totalCredits ? Math.max(0, (creditsRemaining / totalCredits) * 100) : 0}%` }}
               />
             </div>
           </div>
@@ -101,13 +101,13 @@ export default async function DashboardPage() {
               Explore AISEO Pro
             </h3>
             <p className="text-slate-400 text-[11px] font-bold uppercase tracking-widest leading-relaxed mb-6">
-              Unlimited audits, competitor tracking, and dedicated semantic engineering.
+              Add audit credits instantly with one-time INR packs.
             </p>
             <a
-              href={CONTACT_SALES_EMAIL}
+              href="/dashboard/billing"
               className="inline-flex items-center justify-center gap-2 w-full py-3 border-2 border-lime-400/50 text-lime-400 font-black uppercase text-[11px] tracking-[0.2em] rounded-[7px] hover:bg-lime-400/10 hover:border-lime-400 transition-all"
             >
-              Contact Sales
+              Buy Credits
             </a>
           </div>
         </div>

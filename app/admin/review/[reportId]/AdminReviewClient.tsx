@@ -45,7 +45,8 @@ export default function AdminReviewClient({ reportId }: { reportId: string }) {
         body: JSON.stringify({ reportId }),
       });
       if (!res.ok) throw new Error('Request failed');
-      setData((current) => (current ? { ...current, reportStatus: nextStatus } : null));
+      const responseData = await res.json().catch(() => ({}));
+      setData((current) => (current ? { ...current, ...responseData, reportStatus: responseData.reportStatus ?? nextStatus } : null));
     } catch {
       setError('The request could not be completed. Refresh and try again.');
     } finally {

@@ -18,6 +18,7 @@ export default function DashboardNav({ userEmail }: { userEmail: string }) {
   const nav = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/dashboard/audit', label: 'New AIEO Audit' },
+    { href: '/dashboard/billing', label: 'Billing' },
     { href: '/dashboard/understanding-aieo', label: 'Understanding AIEO' },
     { href: '/dashboard/why-aiseo', label: 'Why AISEO?' },
     { href: '/dashboard/feedback', label: 'Feedback' },
