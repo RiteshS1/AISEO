@@ -13,6 +13,9 @@ const App: React.FC = () => {
   const [showAllFaq, setShowAllFaq] = useState(false)
   const [auditReady, setAuditReady] = useState(false)
   const [contactSubmitting, setContactSubmitting] = useState(false)
+  const [contactSuccess, setContactSuccess] = useState(false)
+  const [contactError, setContactError] = useState('')
+  const [contactForm, setContactForm] = useState({ email: '', service: '', message: '' })
 
   useEffect(() => {
     const t = setTimeout(() => setAuditReady(true), LANDING_LOADER_MS)
@@ -282,13 +285,31 @@ const App: React.FC = () => {
               onSubmit={(e) => {
                 e.preventDefault()
                 setContactSubmitting(true)
-                setTimeout(() => setContactSubmitting(false), 1500)
+                setContactSuccess(false)
+                setContactError('')
+                fetch('/api/consultation', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(contactForm),
+                })
+                  .then(async (res) => {
+                    const data = await res.json().catch(() => ({}))
+                    if (!res.ok) throw new Error(data.error ?? 'Unable to send request')
+                    setContactSuccess(true)
+                    setContactForm({ email: '', service: '', message: '' })
+                  })
+                  .catch((error) => setContactError(error instanceof Error ? error.message : 'Unable to send request'))
+                  .finally(() => setContactSubmitting(false))
               }}
             >
               <div className='col-span-2 sm:col-span-1'>
                 <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Email address</label>
                 <input
                   type='email'
+                  name='email'
+                  value={contactForm.email}
+                  onChange={(e) => setContactForm((current) => ({ ...current, email: e.target.value }))}
+                  required
                   className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm transition-all rounded-[7px] placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
                   placeholder='you@company.com'
                 />
@@ -296,7 +317,13 @@ const App: React.FC = () => {
               <div className='col-span-2 sm:col-span-1'>
                 <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Services of interest</label>
                 <div className='relative'>
-                  <select className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm appearance-none transition-all rounded-[7px] cursor-pointer placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'>
+                  <select
+                    name='service'
+                    value={contactForm.service}
+                    onChange={(e) => setContactForm((current) => ({ ...current, service: e.target.value }))}
+                    required
+                    className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm appearance-none transition-all rounded-[7px] cursor-pointer placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
+                  >
                     <option value='' disabled className='bg-slate-900 text-white/50'>Select a service...</option>
                     <option className='bg-slate-900' value='combined'>Combined strategy (SEO + AIEO)</option>
                     <option className='bg-slate-900' value='ai'>AI optimization (AIO/AEO)</option>
@@ -308,6 +335,11 @@ const App: React.FC = () => {
                 <label className='block text-white/40 text-[10px] font-bold tracking-widest mb-4'>Message</label>
                 <textarea
                   rows={3}
+                  name='message'
+                  value={contactForm.message}
+                  onChange={(e) => setContactForm((current) => ({ ...current, message: e.target.value }))}
+                  required
+                  minLength={20}
                   className='w-full bg-white/5 border border-white/10 px-6 py-5 text-white font-medium text-sm rounded-[7px] resize-none placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-lime-400 focus:border-lime-400'
                   placeholder='Tell us about your goals...'
                 />
@@ -315,6 +347,8 @@ const App: React.FC = () => {
               <button type='submit' disabled={contactSubmitting} className='col-span-2 bg-lime-400 text-black font-black py-6 text-sm tracking-widest hover:bg-white transition-all duration-300 rounded-[7px] disabled:opacity-50'>
                 {contactSubmitting ? 'Processing...' : 'Request consultation'}
               </button>
+              {contactSuccess && <p className='col-span-2 text-emerald-400 text-xs font-bold uppercase tracking-widest'>Request received. I will be in touch soon.</p>}
+              {contactError && <p className='col-span-2 text-red-400 text-xs font-bold uppercase tracking-widest'>{contactError}</p>}
             </form>
           </div>
         </div>

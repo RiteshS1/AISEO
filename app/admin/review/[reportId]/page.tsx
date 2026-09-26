@@ -2,6 +2,10 @@ import { requireAdmin } from '@/lib/adminServer';
 import AdminReviewClient from './AdminReviewClient';
 import { redirect } from 'next/navigation';
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function AdminReviewPage({
   params,
 }: {

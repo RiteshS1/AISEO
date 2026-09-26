@@ -2,6 +2,10 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import DashboardNav from './DashboardNav';
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 export default async function DashboardLayout({
   children,
 }: {

@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import FloatingContactWidget from '@/components/FloatingContactWidget';
+import { FAQ_ITEMS } from '@/constants/faq';
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -17,7 +20,8 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://aiseo-n9lz.vercel.app'),
+  metadataBase: new URL(siteUrl),
+  alternates: { canonical: '/' },
   title: 'AISEO by Ritesh | AI Search Visibility',
   description:
     'AI Engine Optimization (AIEO) platform. Audit and optimize your brand for ChatGPT, Gemini, Perplexity & LLMs. Free AI visibility audit – get discovered when AI answers.',
@@ -84,48 +88,11 @@ export default function RootLayout({
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@type': 'FAQPage',
-              mainEntity: [
-                {
-                  '@type': 'Question',
-                  name: 'What is AI SEO (AISEO)?',
-                  acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: 'AI SEO, also known as AISEO or AIO (Artificial Intelligence Optimization), is the strategy of optimizing digital content to be discovered, understood, and cited by Generative AI models like ChatGPT, Gemini, and Perplexity, in addition to traditional search engines.',
-                  },
-                },
-                {
-                  '@type': 'Question',
-                  name: 'How can AI improve SEO for small businesses?',
-                  acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: 'AI tools automate complex technical audits, generate structured schema data, and help small businesses build topical authority faster by identifying content gaps that AI engines prioritize.',
-                  },
-                },
-                {
-                  '@type': 'Question',
-                  name: 'What are the best AI SEO tools?',
-                  acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: 'AISEO by Ritesh provides specialized auditing for brand visibility across large language models.',
-                  },
-                },
-                {
-                  '@type': 'Question',
-                  name: 'Will AI replace traditional SEO in 2025?',
-                  acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: "It won't replace it, but it will evolve into a hybrid model where 'Answer Engine Optimization' (AEO) becomes as critical as traditional keywords. Traffic will shift from blue links to direct AI answers.",
-                  },
-                },
-                {
-                  '@type': 'Question',
-                  name: 'How do I optimize images for AI SEO?',
-                  acceptedAnswer: {
-                    '@type': 'Answer',
-                    text: 'AI vision models read images for context. Optimization requires descriptive filenames, alt text that describes object relationships, and surrounding the image with entity-rich content.',
-                  },
-                },
-              ],
+              mainEntity: FAQ_ITEMS.map((faq) => ({
+                '@type': 'Question',
+                name: faq.q,
+                acceptedAnswer: { '@type': 'Answer', text: faq.a },
+              })),
             }),
           }}
         />

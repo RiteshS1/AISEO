@@ -3,6 +3,10 @@ import Navbar from '@/components/Navbar';
 import DashboardNav from '@/app/dashboard/DashboardNav';
 import ReportContent from './ReportContent';
 
+export const metadata = {
+  robots: { index: false, follow: false },
+};
+
 function ReportError() {
   return (
     <div className="min-h-screen bg-[#020617] text-slate-50 flex flex-col items-center justify-center px-6">

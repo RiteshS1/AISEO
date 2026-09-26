@@ -83,3 +83,34 @@ export async function sendReviewReady(reportId: string, contactName: string): Pr
     throw new Error(`Discord webhook failed: ${res.status} ${await res.text()}`);
   }
 }
+
+export async function sendConsultationRequest(params: {
+  email: string;
+  service: string;
+  message: string;
+}): Promise<void> {
+  const url = process.env.DISCORD_WEBHOOK_URL;
+  if (!url || url.length < 10) {
+    throw new Error('DISCORD_WEBHOOK_URL is missing or invalid.');
+  }
+
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      embeds: [{
+        title: 'Consultation request received',
+        color: 0xd9ff00,
+        fields: [
+          { name: 'Email', value: params.email, inline: true },
+          { name: 'Service', value: params.service, inline: true },
+          { name: 'Message', value: params.message, inline: false },
+        ],
+      }],
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Discord webhook failed: ${response.status}`);
+  }
+}

@@ -19,7 +19,6 @@ AI Visibility Audit: submit brand audits for human approval, generate them with 
 | `NEXT_PUBLIC_SITE_URL` | Canonical URL | Used for Discord review and public report links. |
 | `GROQ_MODEL` | No | Primary Groq model (default: `openai/gpt-oss-120b`). |
 | `GEMINI_MODEL` | No | Gemini backup model (default: `gemini-3.1-flash-lite`). |
-| `GROQ_MODEL` | No | Groq fallback model (default: `llama-3.3-70b-versatile`). |
 
 ## Commands
 
